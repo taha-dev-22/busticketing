@@ -1,0 +1,157 @@
+{% load static %}
+{% load myfilters %}
+<table class="seats my-2" dir="rtl">
+    {% for i in capacity|range%}
+        {% if i|returnrem:4 == 1 %}
+        <tr>
+        {% endif %}
+        <td class="seat_bound">
+            {% if i in seating %}
+                {% if seating|get_gender:i %}
+                <img class="male" id="{{i}}" style="height:48px; width:48px;" src="{% static 'images/seat_male-overlay.png' %}" alt="Seat">
+                <p style="margin-bottom:2px;" class="font-male"><b>{{i}}</b></p>
+                <p class="ticket-status font-male" style="line-height: 0.2;">
+                    <b>
+                    {% if seating|get_status:i  == 2 %}
+                    <span style="color:#ff0f0f;">
+                        sold
+                       </span>
+                    {% else %}
+                    <span style="color:#ff870f;">
+                        booked
+                        </span>
+                    {% endif %}
+                    </b>
+                </p>
+                <p style="line-height: 0.2;font-size:12px;">
+                    <b>
+                    {{ seating|get_bookedcity:i }}
+                    </b>
+                </p>
+                {% else %}
+                <img class="female" id="{{i}}" style="height:48px; width:48px;" src="{% static 'images/seat_female-overlay.png' %}" alt="Seat">
+                <p style="margin-bottom:2px;" class="font-female"><b>{{i}}</b></p>
+                <p class="ticket-status" style="line-height: 0.2;">
+                    <b>
+                    {% if seating|get_status:i  == 2 %}
+                    <span style="color:#ff0f0f;">
+                     sold
+                    </span>
+                    {% else %}
+                    <span style="color:#ff870f;">
+                    booked
+                    </span>
+                    {% endif %}
+                    </b>
+                </p>
+                <p style="line-height: 0.2;font-size:12px;">
+                    <b>
+                    {{ seating|get_bookedcity:i }}
+                    </b>
+                </p>
+                {% endif %}
+            {% else %}
+            <img class="empty clickable" id="{{i}}" onclick="selectSeat(this.id)" style="height:48px; width:48px;" src="{% static 'images/seat_empty.png' %}" alt="Seat">
+            <p style="margin-bottom:2px;"><b>{{i}}</b></p>
+            <p style="line-height: 0.2;font-size:12px;">
+                <b>- -</b>
+            </p>
+            <p style="line-height: 0.2;font-size:12px;">
+                <b>- -</b>
+            </p>
+            {% endif %}
+        </td>
+        {% if i|returnrem:4 == 0 %}
+        </tr>
+        {% endif %}
+    {% endfor %}
+</table>
+{% block script %}<script type="text/JavaScript">
+    var seats = {};
+    var genders = {};
+    var fare = parseInt(document.getElementById('fare').innerHTML);
+function selectSeat(id) 
+{
+    var seat = document.getElementById(id);
+    var name = seat.src.split("/");
+    name = name[name.length-1];
+    console.log(name);
+    var mode = document.getElementById("ticketing-form");
+    if (name == 'seat_empty.png') {
+        seat.src = "{% static 'images/seat_male-overlay.png' %}";
+        seats[id] = '1';
+        genders[id] = 'M';
+        document.getElementById('inputNum').value = Object.keys(seats).length;
+        if(mode)
+        document.getElementById('seatqty').innerHTML = Object.keys(seats).length;
+        
+        document.getElementById('inputTotal').value = Object.keys(seats).length * fare;
+        if(mode)
+        document.getElementById('totalprice').innerHTML = Object.keys(seats).length * fare;
+
+        document.getElementById('inputSeats').value = Object.keys(seats).toString();
+        if(mode)
+        document.getElementById('seatnumber').innerHTML = Object.keys(seats).toString();
+
+        document.getElementById('inputGenders').value = Object.values(seats).toString();
+        if(mode)
+        document.getElementById('seatgender').innerHTML = Object.values(genders).toString();
+    }
+    else if (name == 'seat_male-overlay.png') {
+        seat.src = "{% static 'images/seat_female-overlay.png' %}";
+        seats[id] = '0';
+        genders[id] = 'F';
+        document.getElementById('inputGenders').value = Object.values(seats).toString();
+        if(mode)
+        document.getElementById('seatgender').innerHTML = Object.values(genders).toString();
+    }
+    else {
+        seat.src = "{% static 'images/seat_empty.png' %}";
+        delete seats[id];
+        delete genders[id];
+        document.getElementById('inputNum').value = Object.keys(seats).length;
+        if(mode)
+        document.getElementById('seatqty').innerHTML = Object.keys(seats).length;
+
+        document.getElementById('inputTotal').value = Object.keys(seats).length * fare;
+        if(mode)
+        document.getElementById('totalprice').innerHTML = Object.keys(seats).length * fare;
+
+        document.getElementById('inputSeats').value = Object.keys(seats).toString();
+        if(mode)
+        document.getElementById('seatnumber').innerHTML = Object.keys(seats).toString();
+
+        document.getElementById('inputGenders').value = Object.values(seats).toString();
+        if(mode)
+        document.getElementById('seatgender').innerHTML = Object.values(genders).toString();
+    }
+}
+function validateForm(id) {
+    let x = document.forms["booking"]["inputSeats"].value;
+    if (x == "") {
+      alert("You must Select atleast 1 seat to proceed!");
+      return false;
+    }
+    if (id == "booking-form")
+    {
+        var scid = document.getElementById('scid').innerHTML;
+        var voucher = scid + '-' + Date.now();
+        document.getElementById('inputVoucher').value = voucher;
+    }
+}
+
+function printBill()
+{
+    var scid = document.getElementById('scid').innerHTML;
+    var voucher = scid + '-' + Date.now();
+    document.getElementById('bill-voucher').innerHTML = voucher;
+    document.getElementById('inputVoucher').value = voucher;
+    var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+    var prtContent = document.getElementById("ticket");
+    WinPrint.document.close();
+    WinPrint.document.write(prtContent.innerHTML);
+    WinPrint.print();
+    WinPrint.focus();
+    WinPrint.close();
+}
+</script>{% endblock script %}

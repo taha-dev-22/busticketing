@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="style.css">
+        <title>Receipt example</title>
+    </head>
+    <body>
+        
+        <button id="btnPrint" class="hidden-print">Print</button>
+        <script>
+            const $btnPrint = document.querySelector("#btnPrint");
+$btnPrint.addEventListener("click", () => {
+    var prtContent = document.getElementById("ticket");
+    var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+    WinPrint.document.write(prtContent.innerHTML);
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+});
+        </script>
+    </body>
+</html>

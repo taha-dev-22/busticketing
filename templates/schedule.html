@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title%}Schedule{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>CREATE SCHEDULE</h1>
+    <hr>
+</div>
+<div class="container my-3">
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+    <form method="post" name="schedule" action="">
+        {% csrf_token %}
+        <div class="mb-3 row">
+            <label for="inputDeptDate" class="col-sm-2 col-form-label">Departure</label>
+            <div class="col-sm-3">
+              <input type="date" class="form-control" id="inputDeptDate" name="inputDeptDate" required>
+            </div>
+            <div class="col-sm-3">
+                <input type="time" class="form-control" id="inputDeptTime" name="inputDeptTime" required>
+              </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="inputArrDate" class="col-sm-2 col-form-label">Arrival</label>
+            <div class="col-sm-3">
+              <input type="date" class="form-control" id="inputArrDate" name="inputArrDate" required>
+            </div>
+            <div class="col-sm-3">
+                <input type="time" class="form-control" id="inputArrTime" name="inputArrTime" required>
+              </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="inputRouteBus" class="col-sm-2 col-form-label">Route and Bus</label>
+            <div class="col-sm-4">
+              <select name="inputRouteBus" class="form-control" id="inputRouteBus" required>
+                {% if routeasgbus %}
+                   {% for rb in routeasgbus %}
+                   <option value="{{rb.id}}">{{rb}}</option>
+                   {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+        </div>
+          
+          <button type="submit" class="btn btn-dark btn-md">Assign</button>
+    </form>
+</div>
+<div class="container">
+  {% if routeasgbus %}
+    <table class="bookings mx-auto">
+        <tr>
+          <th>ROUTE</th>
+          <th>BUS</th>
+        </tr>
+        {% for rb in routeasgbus %}
+        <tr class="tr">
+          <td>{{rb.route}}</td>
+          {% if rb.bus %}
+          <td>{{rb.bus}}</td>
+          {% else %}
+          <td> - </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{%endblock body%}

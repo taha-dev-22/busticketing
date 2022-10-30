@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title%}Booking{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>BOOKING</h1>
+    <hr>
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    <form method="post" name="passengerid" class="mx-auto" id="passenger-id-form" action="">
+        {% csrf_token %}
+        <div class="my-2 mx-auto row">
+            <label for="inputPasId" class="col-sm-3 col-form-label text-end">CNIC: </label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" id="inputPasId" name="inputPasId" minlength="13" maxlength="13" required>
+            </div>
+            <div class="col-sm-3 my-auto text-start">
+            <button type="submit" name="find-cnic" class="btn btn-dark btn-md">Find!</button>
+            </div>
+        </div>
+    </form>
+    {% if uid %}
+    <form method="post" name="passengerid" class="mx-auto" id="passenger-id-form" action="">
+        {% csrf_token %}
+        <input type="number" class="hidden-element" name="inputUid" value="{{ uid }}" readonly>
+        <div class="my-2 mx-auto row">
+            <label for="inputPasId" class="col-sm-3 col-form-label text-end">Schedule: </label>
+            <div class="col-sm-6">
+                <select class="form-select" name="inputSchedule" aria-label="Default select example">
+                    {% if schedules %}
+                    {% for i in schedules %}
+                    <option value="{{i.id}}">{{i}}</option>
+                    {% endfor %}
+                    {% endif %}
+                  </select>
+            </div>
+            <div class="col-sm-3 my-auto text-start">
+            <button type="submit" name="find-seats" class="btn btn-dark btn-md">Submit</button>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+</div>
+<div class="container my-5">
+    {% if tickets %}
+    <table class="bookings mx-auto">
+        <tr>
+          <th>ROUTE</th>
+          <th>DEPT. TIME</th>
+          <th>ARRIVAL TIME</th>
+          <th>GENDER</th>
+          <th>SEAT NO</th>
+        </tr>
+        {% for tk in tickets %}
+        <tr class="tr">
+          <td>{{tk.schedule.route_assg_bus.route}}</td>
+          <td>{{tk.schedule.departure}}</td>
+          <td>{{tk.schedule.arrival}}</td>
+          {% if tk.gender %}
+          <td>M</td>
+          {% else %}
+          <td>F</td>
+          {% endif %}
+          <td>{{tk.seat_no}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="ticket hidden-element" id="ticket">
+        <div class="text-center">
+        <h1 style="text-align:center;">MBM</h1>
+        <p style="text-align:center;"><strong>Voucher:</strong> <span id="bill-voucher">{{ billdata.voucher}}</span></p>
+        <p id="bill-route" style="text-align:center;"><strong>Route:</strong> {{schedule.route_assg_bus.route}}</p>
+        <p id="bill-departure" style="text-align:center;"><strong>Departure:</strong> {{schedule.departure.date}} - {{schedule.departure.time}}</p>
+        <p id="bill-bus" style="text-align:center;"><strong>Bus:</strong> {{schedule.route_assg_bus.bus}}</p>
+        <p style="text-align:center;"><strong>Issued By:</strong> {{ billdata.issuedby }}</p>
+        </div>
+        <table style="width:100%;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #000;text-align:center;" class="seat">Seat</th>
+                    <th style="border:1px solid #000;text-align:center;" class="gender">GR.</th>
+                    <th style="border:1px solid #000;text-align:center;" class="qty">QTY</th>
+                    <th style="border:1px solid #000;text-align:center;" class="price">PKR</th>
+                </tr>
+            </thead>
+            <tbody id="bill-body">
+                <tr>
+                    <td style="border:1px solid #000;text-align:center;" id="seatnumber">{{ billdata.seats }}</td>
+                    <td style="border:1px solid #000;text-align:center;" id="seatgender">{{ billdata.genders }}</td>
+                    <td style="border:1px solid #000;text-align:center;" id="seatqty">{{ billdata.qty }}</td>
+                    <td style="border:1px solid #000;text-align:center;" id="seatprice">{{ billdata.fare }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td><b>TOTAL</b></td>
+                    <td style="border:1px solid #000;text-align:center;" id="totalprice">{{ billdata.total }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <form method="post" name="passengerid" class="mx-auto" id="passenger-id-form" action="">
+        {% csrf_token %}
+        <input type="number" class="hidden-element" name="inputUid" value="{{ uid }}" readonly>
+        <input type="number" class="hidden-element" name="inputSid" value="{{ schedule.id }}" readonly>
+            <div class="col-sm-12 my-2 text-center">
+            <button type="submit" name="Purchase-seats" class="btn btn-dark btn-md mx-auto">Submit</button>
+            <button type="button" onclick="printBill()" class="btn btn-dark btn-md mx-auto">Print Bill!</button>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+    {% block script %}
+    <script type="text/JavaScript">
+        function printBill()
+        {
+            var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+            var prtContent = document.getElementById("ticket");
+            WinPrint.document.close();
+            WinPrint.document.write(prtContent.innerHTML);
+            WinPrint.print();
+            WinPrint.focus();
+            WinPrint.close();
+        }
+    </script>
+    {% endblock script %}
+</div>
+{%endblock body%}

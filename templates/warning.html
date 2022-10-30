@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title%}Warning{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>WARNING</h1>
+    <hr>
+</div>
+<div class="container my-3">
+    {% if response %}
+    <h3>{{ response }}</h3>
+    {% endif %}
+</div>
+{%endblock body%}

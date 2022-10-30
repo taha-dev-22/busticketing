@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title%}Fares{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>FARES</h1>
+    <hr>
+</div>
+<div class="container my-3">
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+    <form method="post" name="register" action="">
+        {% csrf_token %}
+        <div class="mb-3 row">
+            <label for="inputFare" class="col-sm-2 col-form-label">Fare</label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="inputFare" name="inputFare" min="100" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputRoute" class="col-sm-2 col-form-label">Route</label>
+            <div class="col-sm-4">
+              <select name="inputRoute" class="form-control" id="inputRoute" required>
+                {% if routetobus %}
+                   {% for rb in routetobus %}
+                     <option value="{{rb.id}}">{{rb.route}} - {{rb.bus.service_type}}</option>
+                   {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-dark btn-md">Assign</button>
+    </form>
+</div>
+<div class="container">
+  {% if fares %}
+    <table class="bookings mx-auto">
+        <tr>
+          <th>ROUTE</th>
+          <th>FARE</th>
+        </tr>
+        {% for fare in fares %}
+        <tr class="tr">
+          <td>{{fare.route_asg_to_bus.route}} - {{fare.route_asg_to_bus.bus.service_type}}</td>
+          <td>{{fare.fare}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{%endblock body%}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title%}Cancel Booking{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+  <h1>CANCEL BOOKING</h1>
+    <hr>
+</div>
+<div class="container my-5">
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <strong>{{ message }}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% if tickets %}
+  <table class="bookings mx-auto">
+    <form method="post" name="cancelBooking" action="{% url 'cancelReservation' %}">
+      {% csrf_token %}
+      <tr>
+        <th>Select</th>
+        <th>SEAT</th>
+        <th>GENDER</th>
+        <th>BOOKED BY</th>
+        <th>CNIC</th>
+        <th>PHONE</th>
+      </tr>
+      {% load static %}
+      {% for tk in tickets %}
+      <tr class="tr">
+        <td>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="ticket" value="{{tk.id}}" id="flexCheckDefault">
+          </div>
+        </td>
+        <td>{{tk.seat_no}}</td>
+        {% if tk.gender %}
+        <td>M</td>
+        {% else %}
+        <td>F</td>
+        {% endif %}
+        <td>{{tk.bookedby.name}}</td>
+        <td>{{tk.bookedby.cnic}}</td>
+        <td>{{tk.bookedby.phone}}</td>
+      </tr>
+      {% endfor %}
+  </table>
+  <div class="row mx-auto my-2">
+    <button type="submit" name="cancel-by-schedule" class="col-sm-2 btn btn-dark btn-md mx-auto">Cancel Booking</button>
+  </div>
+  </form>
+  {% endif %}
+</div>
+{%endblock body%}

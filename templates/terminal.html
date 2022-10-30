@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title%}Terminal{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>REGISTER TERMINAL</h1>
+    <hr>
+</div>
+<div class="container my-3">
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+    <form method="post" name="register" action="">
+        {% csrf_token %}
+        <div class="mb-3 row">
+            <label for="inputName" class="col-sm-2 col-form-label">Name</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputName" name="inputName" placeholder="Terminal Name" minlength="3" maxlength="50" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputCity" class="col-sm-2 col-form-label">City</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputCity" placeholder="City Name" name="inputCity" minlength="3" maxlength="50" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputAddress" name="inputAddress" placeholder="Terminal Address" min="10" max="100" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-dark btn-md">Register</button>
+    </form>
+</div>
+{%endblock body%}

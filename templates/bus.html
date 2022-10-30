@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title%}Bus{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>REGISTER BUS</h1>
+    <hr>
+</div>
+<div class="container my-3">
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+    <form method="post" name="register" action="">
+        {% csrf_token %}
+        <div class="mb-3 row">
+            <label for="inputModel" class="col-sm-2 col-form-label">Model</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputModel" name="inputModel" placeholder="NAME-YEAR" minlength="3" maxlength="50" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputNumber" class="col-sm-2 col-form-label">Number</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputNumber" style="text-transform:uppercase" placeholder="AAA-0000" oninput="this.value = this.value.toUpperCase()" name="inputNumber" minlength="3" maxlength="8" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputSeating" class="col-sm-2 col-form-label">Seating Capacity</label>
+            <div class="col-sm-4">
+              <input type="number" class="form-control" id="inputSeating" name="inputSeating" placeholder="18 - 48" min="18" max="48" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputService" class="col-sm-2 col-form-label">SERVICE</label>
+            <div class="col-sm-4">
+              <select name="inputService" class="form-control" id="inputService" required>
+                <option value="economy">Economy</option>
+                <option value="luxury">Luxury</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-dark btn-md">Register</button>
+    </form>
+</div>
+{%endblock body%}

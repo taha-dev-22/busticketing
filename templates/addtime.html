@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title%}Extra Time{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>ADD EXTRA TIME</h1>
+    <hr>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    <div class="row">
+        <form method="post" name="time" class="mx-auto" id="add-time" action="">
+            {% csrf_token %}
+            <div class="my-2 mx-auto row">
+                <label for="inputTime" class="col-sm-4 col-form-label text-end">Time to add: </label>
+                <div class="col-sm-4">
+                    <input type="number" class="form-control" id="inputTime" name="inputTime" min="1" max="720" placeholder="Mention time in minutes e.g. 10, 20 or 30" required>
+                </div>
+                <div class="col-sm-4 my-auto text-start">
+                <button type="submit" name="add-time" class="btn btn-dark btn-md">Add</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{%endblock body%}
