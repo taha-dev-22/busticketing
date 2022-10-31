@@ -57,16 +57,22 @@ def schedule(request):
     if request.user.is_anonymous:
         return redirect('/login')
     schedule = None
+    user = User.objects.get(id=request.user.id)
+    userterminal = UserofTerminal.objects.get(user=user)
+    request.session['uterminal'] = str(userterminal.terminal)
+    schedule = Schedule.objects.filter(status=True)
     if request.method == "POST":
         date = request.POST['inputDate']
         time = request.POST['inputTime']
-        dt = datetime.combine(datetime.strptime(date, r'%Y-%m-%d'), datetime.time(datetime.strptime(time, r'%H:%M')))
-        schedule = Schedule.objects.filter(departure__gte = dt, status=True)
-    else:
-        schedule = Schedule.objects.filter(status=True)
-        user = User.objects.get(id=request.user.id)
-        userterminal = UserofTerminal.objects.get(user=user)
-        request.session['uterminal'] = str(userterminal.terminal)
+        if date:
+            dt = None
+            if time:
+                dt = datetime.combine(datetime.strptime(date, r'%Y-%m-%d'), datetime.time(datetime.strptime(time, r'%H:%M')))
+            else:
+                dt = datetime.strptime(date, r'%Y-%m-%d')
+            schedule = Schedule.objects.filter(departure__gte = dt, status=True)
+        else:
+            messages.warning(request, "Please choose a date first!")
     return render(request, 'index.html', {'schedule': schedule, 'uterminal': userterminal})
 
 def booking(request, schedule_id):

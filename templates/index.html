@@ -9,6 +9,14 @@
   <h1>SCHEDULE</h1>
   <hr>
   <div class="container">
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+  {% endif %}
   <form method="post" name="schedule-form" class="mx-auto" id="schedule-form" action="">
     {% csrf_token %}
       <label for="inputDate" class="form-label">Date: </label>
@@ -20,14 +28,6 @@
 </div>
 </div>
 <div class="container">
-  {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                <strong>{{ message }}</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-            {% endif %}
     <table class="schedule">
         <tr>
           <th>ROUTE</th>

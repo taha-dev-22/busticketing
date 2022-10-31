@@ -22,8 +22,8 @@ class RegistrationHandler():
             if fromdate <= todate:
                 try:
                     while fromdate <= todate:
-                        departure = datetime.combine(datetime.strptime(data['inputFromDate'], r'%Y-%m-%d'), datetime.time(datetime.strptime(data['inputDeptTime'], r'%H:%M')))
-                        arrival = datetime.combine(datetime.strptime(data['inputFromDate'], r'%Y-%m-%d'), datetime.time(datetime.strptime(data['inputArrTime'], r'%H:%M')))
+                        departure = datetime.combine(datetime.date(fromdate), datetime.time(datetime.strptime(data['inputDeptTime'], r'%H:%M')))
+                        arrival = datetime.combine(datetime.date(fromdate), datetime.time(datetime.strptime(data['inputArrTime'], r'%H:%M')))
                         routebus = RouteAssignedToBus.objects.get(id = data['inputRouteBus'])
                         schedule = Schedule.objects.filter(route_assg_bus = routebus, departure = departure, arrival = arrival).exists()
                         fromdate += timedelta(days=1)
@@ -32,21 +32,23 @@ class RegistrationHandler():
                             return {'request': request, 'routeasgbus': routeasgbus}
                 except Exception as e:
                     messages.warning(request, e)
-                    if not schedule:
-                        try:
-                            fromdate = datetime.strptime(data['inputFromDate'], r'%Y-%m-%d')
-                            todate = datetime.strptime(data['inputToDate'], r'%Y-%m-%d')
-                            while fromdate <= todate:
-                                departure = datetime.combine(fromdate, datetime.time(datetime.strptime(data['inputDeptTime'], r'%H:%M')))
-                                arrival = datetime.combine(fromdate, datetime.time(datetime.strptime(data['inputArrTime'], r'%H:%M')))
-                                schedule = Schedule(route_assg_bus = routebus, departure = departure, arrival = arrival)
-                                schedule.save()
-                                fromdate += timedelta(days=1)
-                            messages.success(request, 'Schedules Registered Successfully!')
-                        except Exception as e:
-                            messages.warning(request, e)
-                    else:
-                        messages.warning(request, 'Schedule already exists!')
+                if not schedule:
+                    try:
+                        fromdate = datetime.strptime(data['inputFromDate'], r'%Y-%m-%d')
+                        todate = datetime.strptime(data['inputToDate'], r'%Y-%m-%d')
+                        while fromdate <= todate:
+                            departure = datetime.combine(datetime.date(fromdate), datetime.time(datetime.strptime(data['inputDeptTime'], r'%H:%M')))
+                            arrival = datetime.combine(datetime.date(fromdate), datetime.time(datetime.strptime(data['inputArrTime'], r'%H:%M')))
+                            schedule = Schedule(route_assg_bus = routebus, departure = departure, arrival = arrival)
+                            schedule.save()
+                            fromdate += timedelta(days=1)
+                        messages.success(request, 'Schedules Registered Successfully!')
+                    except Exception as e:
+                        messages.warning(request, e)
+                else:
+                    messages.warning(request, 'Schedule already exists!')
+            else:
+                messages.warning(request, 'Final Date must be greater than initial date!')
         return {'request': request, 'routeasgbus': routeasgbus}
 
     @staticmethod
