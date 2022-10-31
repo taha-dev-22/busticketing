@@ -28,5 +28,6 @@ urlpatterns = [
     path('import', views.importData, name='import'),
     path('warning', views.warning, name='warning'),
     path('createuser', views.createUser, name='createuser'),
-    path('bookingdetail', views.bookingdetail, name='bookingdetail')
+    path('bookingdetail', views.bookingdetail, name='bookingdetail'),
+    path('vouchers', views.vouchers, name='vouchers')
 ]

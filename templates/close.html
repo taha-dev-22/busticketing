@@ -16,16 +16,39 @@
             {% endfor %}
         {% endif %}
     <div class="row">
-        <form method="post" name="time" class="mx-auto" id="add-time" action="">
+        <form method="post" name="closing" class="mx-auto" id="close-booking" action="">
             {% csrf_token %}
             <div class="my-2 mx-auto row">
-                <label for="inputTime" class="col-sm-4 col-form-label text-end">Time to add: </label>
+                <label for="inputRefreshment" class="col-md-1 col-form-label">Refreshment: </label>
                 <div class="col-sm-4">
-                    <input type="number" class="form-control" id="inputTime" name="inputTime" min="1" max="720" placeholder="Mention time in minutes e.g. 10, 20 or 30" required>
+                    <input type="number" class="form-control" id="inputRefreshment" name="inputRefreshment" min="0" placeholder="Refreshment charges (Minimum - 0Rs)" required>
                 </div>
-                <div class="col-sm-4 my-auto text-start">
-                <button type="submit" name="add-time" class="btn btn-dark btn-md">Add</button>
+            </div>
+
+            <input type="number" class="hidden-element" id="inputSchedule" name="inputSchedule" value="{{ schedule.id }}">
+            <input type="text" class="hidden-element" id="inputVoucher" name="inputVoucher" value="">
+
+            <div class="my-2 mx-auto row">
+                <label for="inputWashing" class="col-md-1 col-form-label">Washing: </label>
+                <div class="col-sm-4">
+                    <input type="number" class="form-control" id="inputWashing" name="inputWashing" min="0" placeholder="Washing charges (Minimum - 0Rs)" required>
                 </div>
+            </div>
+            <div class="my-2 mx-auto row">
+                <label for="inputParking" class="col-md-1 col-form-label">Parking: </label>
+                <div class="col-sm-4">
+                    <input type="number" class="form-control" id="inputParking" name="inputParking" min="0" placeholder="Parking charges (Minimum - 0Rs)" required>
+                </div>
+            </div>
+            <div class="my-2 mx-auto row">
+                <label for="inputToll" class="col-md-1 col-form-label">Toll: </label>
+                <div class="col-sm-4">
+                    <input type="number" class="form-control" id="inputToll" name="inputToll" min="0" placeholder="Toll charges (Minimum - 0Rs)" required>
+                </div>
+            </div>
+            <div class="col-sm-4 my-3 text-start">
+            <button type="submit" name="add-time" class="btn btn-dark btn-md">Close</button>
+            <button type="button" onclick="printVoucher()" class="btn btn-dark btn-md">Print Voucher</button>
             </div>
         </form>
     </div>
@@ -34,36 +57,81 @@
         <div class="text-center">
         <h1 style="text-align:center;">MBM</h1>
         {% comment %} <p style="text-align:center;"><strong>Voucher:</strong> <span id="bill-voucher">{{ billdata.voucher}}</span></p> {% endcomment %}
-        <p id="bill-route" style="text-align:center;"><strong>Route:</strong> {{schedule.route_assg_bus.route}}</p>
-        <p id="bill-departure" style="text-align:center;"><strong>Departure:</strong> {{schedule.departure.date}} - {{schedule.departure.time}}</p>
-        <p id="bill-bus" style="text-align:center;"><strong>Bus:</strong> {{schedule.route_assg_bus.bus}}</p>
-        <p style="text-align:center;"><strong>Issued By:</strong> {{ request.user.id }}</p>
         </div>
-        <table style="width:100%;">
-            <thead>
-                <tr>
-                    <th style="border:1px solid #000;text-align:center;" class="seat">Total Seats</th>
-                    <th style="border:1px solid #000;text-align:center;" class="gender">Occupied seats</th>
-                    <th style="border:1px solid #000;text-align:center;" class="qty">fare</th>
-                    {% comment %} <th style="border:1px solid #000;text-align:center;" class="price">PKR</th> {% endcomment %}
-                </tr>
-            </thead>
-            <tbody id="bill-body">
-                <tr>
-                    <td style="border:1px solid #000;text-align:center;" id="seatnumber">{{ route_bus.bus.seating_capacity }}</td>
-                    <td style="border:1px solid #000;text-align:center;" id="seatgender">{{ tickets }}</td>
-                    <td style="border:1px solid #000;text-align:center;" id="seatqty">{{ fare }}</td>
-                    {% comment %} <td style="border:1px solid #000;text-align:center;" id="seatprice">{{ billdata.fare }}</td> {% endcomment %}
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td><b>TOTAL</b></td>
-                    {% comment %} <td style="border:1px solid #000;text-align:center;" id="totalprice">{{ billdata.total }}</td> {% endcomment %}
-                </tr>
-            </tbody>
+        <table style="width:100%; margin-top:5px;">
+            <tr>
+                <th style="border:1px solid #000;text-align:center;width:50%;">Voucher</th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="bill-voucher"></th>
+            </tr>
         </table>
+        <table style="width:100%; margin-top:5px;">
+            <tr>
+                <th style="border:1px solid #000;text-align:center;">Departure Info</th>
+            </tr>
+            <tr>
+                <th style="border:1px solid #000;text-align:center;">Route</th>
+                <th style="border:1px solid #000;text-align:center;">Departure</th>
+                <th style="border:1px solid #000;text-align:center;">Bus</th>
+                <th style="border:1px solid #000;text-align:center;">issuedby</th>
+            </tr>
+            <tr>
+                <td style="border:1px solid #000;text-align:center;">{{schedule.route_assg_bus.route}}</td>
+                <td style="border:1px solid #000;text-align:center;">{{schedule.departure.date}} - {{schedule.departure.time}}</td>
+                <td style="border:1px solid #000;text-align:center;">{{schedule.route_assg_bus.bus}}</td>
+                <td style="border:1px solid #000;text-align:center;">{{ request.user.id }}</td>
+            </tr>
+        </table>
+        <table style="width:100%; margin-top:5px;">
+            <tr>
+                <th style="border:1px solid #000;text-align:center;">Seating Info</th>
+            </tr>
+                <tr>
+                    <th style="border:1px solid #000;text-align:center;">Total Seats</th>
+                    <th style="border:1px solid #000;text-align:center;">Occupied seats</th>
+                    <th style="border:1px solid #000;text-align:center;">fare</th>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000;text-align:center;">{{ route_bus.bus.seating_capacity }}</td>
+                    <td style="border:1px solid #000;text-align:center;">{{ tickets }}</td>
+                    <td style="border:1px solid #000;text-align:center;">{{ fare }}</td>
+                </tr>
+        </table>
+        <table style="width:100%; margin-top:5px;">
+            <tr>
+                <th style="border:1px solid #000;text-align:center;">Deduction Summary</th>
+            </tr>
+            <tr>
+                <th style="border:1px solid #000;text-align:center;">Refreshment</th>
+                <th style="border:1px solid #000;text-align:center;">Washing</th>
+                <th style="border:1px solid #000;text-align:center;">Parking</th>
+                <th style="border:1px solid #000;text-align:center;">Toll</th>
+            </tr>
+            <tr>
+                <td style="border:1px solid #000;text-align:center;">0</td>
+                <td style="border:1px solid #000;text-align:center;">0</td>
+                <td style="border:1px solid #000;text-align:center;">0</td>
+                <td style="border:1px solid #000;text-align:center;">0</td>
+            </tr>
+    </table>
     </div>
     {% endif %}
+    {% block script %}
+    <script type="text/JavaScript">
+        function printVoucher()
+        {
+            var scid = document.getElementById('inputSchedule').value;
+            var voucher = scid + '-' + Date.now();
+            document.getElementById('bill-voucher').innerHTML = voucher;
+            document.getElementById('inputVoucher').value = voucher;
+            var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+            var prtContent = document.getElementById("voucher");
+            WinPrint.document.close();
+            WinPrint.document.write(prtContent.innerHTML);
+            WinPrint.print();
+            WinPrint.focus();
+            WinPrint.close();
+        }
+    </script>
+    {% endblock script %}
 </div>
 {%endblock body%}

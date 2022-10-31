@@ -101,6 +101,24 @@ class Fares(models.Model):
     
     def __str__(self):
         return str(self.route_asg_to_bus.route) + ' - ' + str(self.route_asg_to_bus.bus.service_type)
+
+class Voucher(models.Model):
+    terminal = models.ForeignKey(Terminal, on_delete=models.SET_NULL, null=True)
+    schedule = models.ForeignKey("Schedule", on_delete=models.SET_NULL, null=True)
+    issuedby = models.ForeignKey(User, on_delete=models.CASCADE)
+    voucher = models.CharField(max_length=200, unique=True)
+    refreshment = models.IntegerField()
+    washing = models.IntegerField()
+    parking = models.IntegerField()
+    toll = models.IntegerField()
+    created = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
+    last_modified = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
+
+    class Meta:
+        verbose_name_plural = 'Voucher'
+    
+    def __str__(self):
+        return str(self.voucher) + ' - ' + str(self.schedule)
     
 class Refund(models.Model):
     passenger = models.ForeignKey("Passenger", on_delete=models.SET_NULL, null=True)

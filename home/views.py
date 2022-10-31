@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal
+from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher
 from django.contrib.auth.models import User
 from home.bookingHandler import BookingHandler
 from home.ticketingHandler import TicketingHandler
@@ -152,6 +152,13 @@ def assignDriver(request):
     result = RegistrationHandler.assignDriverToBus(request)
     return render(result['request'], 'drivertobus.html', {'buses':result['buses'], 'drivers':result['drivers'], 'bustodriver':result['bustodriver']})
 
+def vouchers(request):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    uterminal = UserofTerminal.objects.get(user=request.user)
+    vouchers = Voucher.objects.filter(terminal=uterminal.terminal)
+    return render(request, 'voucher.html', {'vouchers': vouchers})
+
 def fares(request):
     if request.user.is_anonymous:
         return redirect('/login')
@@ -167,10 +174,16 @@ def close(request, schedule_id):
     fare = Fares.objects.get(route_asg_to_bus=route_to_bus).fare
     fare *= tickets
     if request.method == "POST":
+        data = request.POST
         try:
             schedule = Schedule.objects.get(id=schedule_id)
             schedule.status = False
             schedule.save()
+            user = request.user
+            uterminal = UserofTerminal.objects.get(user=user)
+            voucher = Voucher(terminal=uterminal.terminal, schedule= schedule, issuedby= user, voucher= data['inputVoucher'], 
+                              refreshment=data['inputRefreshment'], washing=data['inputWashing'], parking=data['inputParking'], toll=data['inputToll'])
+            voucher.save()
             messages.success(request, 'Booking Closed Successfully!')
         except Exception as e:
             messages.warning(request, e)
