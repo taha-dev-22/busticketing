@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from home.models import Driver, Passenger, Schedule, Tickets, UserofTerminal
+from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal
 from django.contrib.auth.models import User
 from home.bookingHandler import BookingHandler
 from home.ticketingHandler import TicketingHandler
@@ -158,19 +158,23 @@ def fares(request):
     result = RegistrationHandler.fares(request)
     return render(result['request'], 'fares.html', {'fares': result['fares'], 'routetobus': result['routetobus']})
 
-def lock(request, schedule_id):
+def close(request, schedule_id):
     if request.user.is_anonymous:
         return redirect('/login')
-    schedule = None
-    try:
-        schedule = Schedule.objects.get(id=schedule_id)
-        schedule.status = False
-        schedule.save()
-        messages.success(request, 'Booking Closed Successfully!')
-    except Exception as e:
-        messages.warning(request, e)
-    schedule = Schedule.objects.filter(status=True)
-    return render(request, 'index.html', {'schedule':schedule})
+    schedule = Schedule.objects.get(id=schedule_id)
+    tickets = Tickets.objects.filter(schedule=schedule).count()
+    route_to_bus = RouteAssignedToBus.objects.get(id=schedule.route_assg_bus.id)
+    fare = Fares.objects.get(route_asg_to_bus=route_to_bus).fare
+    fare *= tickets
+    if request.method == "POST":
+        try:
+            schedule = Schedule.objects.get(id=schedule_id)
+            schedule.status = False
+            schedule.save()
+            messages.success(request, 'Booking Closed Successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'close.html', {'schedule':schedule, 'tickets':tickets, 'route_bus': route_to_bus, 'fare': fare})
 
 def addtime(request, schedule_id):
     if request.user.is_anonymous:

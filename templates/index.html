@@ -50,7 +50,7 @@
           <td><a href="{% url 'ticketing' schedule_id=sc.id %}"><img src="{% static 'images/purchase.png' %}"></a> <a href="{% url 'booking' schedule_id=sc.id %}"><img src="{% static 'images/book.png' %}"></a>
               </a> <a href="{% url 'addtime' schedule_id=sc.id %}"><img src="{% static 'images/time.png' %}"></a>
           </td>
-          <td><a href="{% url 'lock' schedule_id=sc.id %}"><img src="{% static 'images/lock.png' %}"></a></td>
+          <td><a href="{% url 'close' schedule_id=sc.id %}"><img src="{% static 'images/lock.png' %}"></a></td>
         </tr>
         {% endfor %}
       </table>
