@@ -1,7 +1,7 @@
 from asyncio.windows_events import NULL
 from home.models import AssignedBusesToDriver, Driver, Bus, Fares, Route, Terminal, RouteAssignedToBus, Schedule
 from django.contrib import messages
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class RegistrationHandler():
     @staticmethod
@@ -17,22 +17,36 @@ class RegistrationHandler():
             departure = None
             arrival = None
             routebus = None
-            try:
-                departure = datetime.combine(datetime.strptime(data['inputDeptDate'], r'%Y-%m-%d'), datetime.time(datetime.strptime(data['inputDeptTime'], r'%H:%M')))
-                arrival = datetime.combine(datetime.strptime(data['inputArrDate'], r'%Y-%m-%d'), datetime.time(datetime.strptime(data['inputArrTime'], r'%H:%M')))
-                routebus = RouteAssignedToBus.objects.get(id = data['inputRouteBus'])
-                schedule = Schedule.objects.filter(route_assg_bus = routebus, departure = departure, arrival = arrival).exists()
-            except Exception as e:
-                messages.warning(request, e)
-            if not schedule:
+            fromdate = datetime.strptime(data['inputFromDate'], r'%Y-%m-%d')
+            todate = datetime.strptime(data['inputToDate'], r'%Y-%m-%d')
+            if fromdate <= todate:
                 try:
-                    schedule = Schedule(route_assg_bus = routebus, departure = departure, arrival = arrival)
-                    schedule.save()
-                    messages.success(request, 'Schedule Registered Successfully!')
+                    while fromdate <= todate:
+                        departure = datetime.combine(datetime.strptime(data['inputFromDate'], r'%Y-%m-%d'), datetime.time(datetime.strptime(data['inputDeptTime'], r'%H:%M')))
+                        arrival = datetime.combine(datetime.strptime(data['inputFromDate'], r'%Y-%m-%d'), datetime.time(datetime.strptime(data['inputArrTime'], r'%H:%M')))
+                        routebus = RouteAssignedToBus.objects.get(id = data['inputRouteBus'])
+                        schedule = Schedule.objects.filter(route_assg_bus = routebus, departure = departure, arrival = arrival).exists()
+                        fromdate += timedelta(days=1)
+                        if schedule:
+                            messages.warning(request, 'Schedule already exists!')
+                            return {'request': request, 'routeasgbus': routeasgbus}
                 except Exception as e:
                     messages.warning(request, e)
-            else:
-                messages.warning(request, 'Schedule already exists!')
+                    if not schedule:
+                        try:
+                            fromdate = datetime.strptime(data['inputFromDate'], r'%Y-%m-%d')
+                            todate = datetime.strptime(data['inputToDate'], r'%Y-%m-%d')
+                            while fromdate <= todate:
+                                departure = datetime.combine(fromdate, datetime.time(datetime.strptime(data['inputDeptTime'], r'%H:%M')))
+                                arrival = datetime.combine(fromdate, datetime.time(datetime.strptime(data['inputArrTime'], r'%H:%M')))
+                                schedule = Schedule(route_assg_bus = routebus, departure = departure, arrival = arrival)
+                                schedule.save()
+                                fromdate += timedelta(days=1)
+                            messages.success(request, 'Schedules Registered Successfully!')
+                        except Exception as e:
+                            messages.warning(request, e)
+                    else:
+                        messages.warning(request, 'Schedule already exists!')
         return {'request': request, 'routeasgbus': routeasgbus}
 
     @staticmethod

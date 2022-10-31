@@ -20,19 +20,21 @@
     <form method="post" name="schedule" action="">
         {% csrf_token %}
         <div class="mb-3 row">
-            <label for="inputDeptDate" class="col-sm-2 col-form-label">Departure</label>
+            <label for="inputFromDate" class="col-sm-2 col-form-label">FROM</label>
             <div class="col-sm-3">
-              <input type="date" class="form-control" id="inputDeptDate" name="inputDeptDate" required>
+              <input type="date" class="form-control" id="inputFromDate" name="inputFromDate" required>
             </div>
+            <label for="inputToDate" class="col-sm-2 col-form-label">TO</label>
             <div class="col-sm-3">
-                <input type="time" class="form-control" id="inputDeptTime" name="inputDeptTime" required>
-              </div>
+              <input type="date" class="form-control" id="inputToDate" name="inputToDate" required>
+            </div>
         </div>
         <div class="mb-3 row">
-            <label for="inputArrDate" class="col-sm-2 col-form-label">Arrival</label>
+            <label for="inputDeptTime" class="col-sm-2 col-form-label">Departure</label>
             <div class="col-sm-3">
-              <input type="date" class="form-control" id="inputArrDate" name="inputArrDate" required>
+              <input type="time" class="form-control" id="inputDeptTime" name="inputDeptTime" required>
             </div>
+            <label for="inputArrTime" class="col-sm-2 col-form-label">Arrival</label>
             <div class="col-sm-3">
                 <input type="time" class="form-control" id="inputArrTime" name="inputArrTime" required>
               </div>
