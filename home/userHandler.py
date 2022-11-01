@@ -1,6 +1,7 @@
+from turtle import update
 from django.contrib import messages
 from django.contrib.auth.models import User
-from home.models import UserData, Terminal, UserofTerminal
+from home.models import UserData, Terminal, UserofTerminal, Terminal
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 class UserHandler():
@@ -33,3 +34,49 @@ class UserHandler():
                 except Exception as e:
                     messages.warning(request, e)
         return {'request':request, 'terminals':terminals}
+
+    @staticmethod
+    def viewUsers(request):
+        users = None
+        try:
+            users = User.objects.all()
+        except Exception as e:
+            messages.warning(request, e)
+        return {'request': request, 'Users': users}
+    
+    @staticmethod
+    def editUsers(request, user_id):
+        user = None
+        udata = None
+        uterminal = None
+        terminals = None
+        if request.method == "POST":
+            data = request.POST
+            try:
+                user = User.objects.get(id=int(user_id))
+                udata = UserData.objects.filter(user=user)
+                uterminal = UserofTerminal.objects.filter(user=user)
+                if data['inputPass']:
+                    user.set_password(data['inputPass'])
+                user.first_name = data['inputFname']
+                user.last_name = data['inputLname']
+                user.save()
+                if data['inputDob']:
+                    udata.update(dob = data['inputDob'], cnic = data['inputCnic'], phone = data['inputPhone'], address = data['inputAddress'])
+                else:
+                    udata.update(cnic = data['inputCnic'], phone = data['inputPhone'], address = data['inputAddress'])
+                terminal = Terminal.objects.get(id = data['inputTerminal'])
+                uterminal.update(terminal = terminal)
+                messages.success(request, 'User modified successfully!')
+            except Exception as e:
+                messages.warning(request, e)
+
+        try:
+            user = User.objects.get(id=int(user_id))
+            udata = UserData.objects.get(user=user)
+            uterminal = UserofTerminal.objects.get(user=user)
+            terminals = Terminal.objects.all().exclude(id=uterminal.terminal.id)
+        except Exception as e:
+            messages.warning(request, e)
+
+        return {'request': request, 'User': user, 'udata': udata, 'uterminal': uterminal, 'terminals': terminals}

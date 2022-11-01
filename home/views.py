@@ -1,3 +1,5 @@
+from this import d
+from unittest import result
 from django.shortcuts import render, redirect
 from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher
 from django.contrib.auth.models import User
@@ -16,10 +18,28 @@ def importData(request):
     return render(request, 'import.html')
 
 def createUser(request):
-    if request.user.is_anonymous or not request.user.is_superuser:
+    if request.user.is_anonymous:
+        return redirect('/login')
+    if not request.user.is_superuser:
         return redirect('/warning')
     result = UserHandler.create(request)
     return render(result['request'], 'createuser.html', {'terminals': result['terminals']})
+
+def edituser(request, user_id):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    if not request.user.is_superuser:
+        return redirect('/warning')
+    result = UserHandler.editUsers(request, user_id)
+    return render(result['request'], 'edituser.html', {'User': result['User'], 'udata': result['udata'], 'uterminal': result['uterminal'], 'terminals': result['terminals']})
+
+def viewUsers(request):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    if not request.user.is_superuser:
+        return redirect('/warning')
+    result = UserHandler.viewUsers(request)
+    return render(result['request'], 'users.html', {'Users': result['Users']})
 
 def warning(request):
     return render(request, 'warning.html', {'response': "You are not authorized to access this page!"})

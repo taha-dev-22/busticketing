@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title%}User{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>EDIT USER</h1>
+    <hr>
+</div>
+<div class="container my-3">
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+    {% if User %}
+    <form method="post" name="register" action="">
+        {% csrf_token %}
+        <div class="mb-3 row">
+            <label for="inputFname" class="col-sm-2 col-form-label">FIRST NAME</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputFname" name="inputFname" minlength="3" maxlength="50" value="{{User.first_name}}" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputLname" class="col-sm-2 col-form-label">LAST NAME</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputLname" name="inputLname" minlength="3" maxlength="50" value="{{User.last_name}}" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputUsername" class="col-sm-2 col-form-label">USERNAME</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputUsername" name="inputUsername" minlength="3" maxlength="50" value="{{User.username}}" required readonly>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputEmail" class="col-sm-2 col-form-label">EMAIL</label>
+            <div class="col-sm-4">
+            <input type="email" class="form-control" id="inputEmail" name='inputEmail' aria-describedby="Email" autocomplete="off" value="{{User.email}}" required readonly>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputPass" class="col-sm-2 col-form-label">PASSWORD</label>
+            <div class="col-sm-4">
+            <input type="text" class="form-control" id="inputPass" name='inputPass' aria-describedby="Password" autocomplete="off">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputTerminal" class="col-sm-2 col-form-label">TERMINAL</label>
+            <div class="col-sm-4">
+              <select name="inputTerminal" class="form-control" id="inputTerminal" required>
+                {% if terminals %}
+                <option value="{{uterminal.id}}" selected>{{uterminal.terminal}}</option>
+                   {% for terminal in terminals%}
+                   <option value="{{terminal.id}}">{{terminal}}</option>
+                   {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputDob" class="col-sm-2 col-form-label">DOB</label>
+            <div class="col-sm-4">
+              <input type="date" class="form-control" id="inputDob" name="inputDob">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputCnic" class="col-sm-2 col-form-label">CNIC</label>
+            <div class="col-sm-4">
+              <input type="number" class="form-control" id="inputCnic" name="inputCnic" value="{{ udata.cnic }}" minlength="13" maxlength="13" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputPhone" class="col-sm-2 col-form-label">PHONE</label>
+            <div class="col-sm-4">
+              <input type="number" class="form-control" id="inputPhone" name="inputPhone" value="{{ udata.phone }}" minlength="11" maxlength="13" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputAddress" class="col-sm-2 col-form-label">ADDRESS</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputAddress" name="inputAddress" value="{{ udata.address }}" minlength="10" maxlength="100" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-dark btn-md">Modify</button>
+    </form>
+    {% endif %}
+</div>
+{%endblock body%}

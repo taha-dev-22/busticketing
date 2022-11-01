@@ -14,6 +14,7 @@ urlpatterns = [
     path('cancelTickets', views.cancelTickets, name='cancelTickets'),
     path('cancelreservation', views.cancelReservation, name='cancelReservation'),
     path('time/<int:schedule_id>', views.addtime, name='addtime'),
+    path('edituser/<int:user_id>', views.edituser, name='edituser'),
     path('close/<int:schedule_id>', views.close, name='close'),
     path('driver', views.registerDriver, name='driver'),
     path('bus', views.registerBus, name='bus'),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('import', views.importData, name='import'),
     path('warning', views.warning, name='warning'),
     path('createuser', views.createUser, name='createuser'),
+    path('viewusers', views.viewUsers, name='viewusers'),
     path('bookingdetail', views.bookingdetail, name='bookingdetail'),
     path('vouchers', views.vouchers, name='vouchers')
 ]
