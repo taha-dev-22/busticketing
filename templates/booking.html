@@ -4,12 +4,12 @@
 {% block username %}{{ request.user.username }}{% endblock username %}
 {% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
 {%block body%}
-
+{% load myfilters %}
 <div class="container">
     <h1>BOOKING</h1>
     <hr>
     <div class="row my-3">
-        <div class="col-6">
+        <div class="col-4">
             {% if messages %}
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -45,27 +45,39 @@
                 </tr>
             </table>
             <hr>
-            <span class="hidden-element" id="fare">{{ fare }}</span>
+            <span class="hidden-element" id="fare">{{fares|get_fare}}</span>
             <span class="hidden-element" id="scid">{{ schedule.id }}</span>
             <span id="seats"></span>
             <span id="genders"></span>
             <form method="post" name="booking" onsubmit="return validateForm(this.id)" id="booking-form" action="{% url 'booking' schedule_id=schedule.id %}">
                 {% csrf_token %}
                 <div class="mb-3 row">
+                    <label for="inputRoute" class="col-sm-3 col-form-label">Source - Destination</label>
+                    <div class="col-sm-9">
+                      <select name="inputRoute" onchange="setFair(this.value);" class="form-control" id="inputRoute">
+                        {% if fares %}
+                           {% for fare in fares %}
+                             <option value="{{fare.id}}">{{fare.source}} - {{fare.destination}}</option>
+                           {% endfor %}
+                        {% endif %}
+                      </select>
+                    </div>
+                  </div>
+                <div class="mb-3 row">
                     <label for="inputPasName" class="col-sm-3 col-form-label">Passenger Name: </label>
-                    <div class="col-sm-6">
+                    <div class="col-sm-9">
                         <input type="text" class="form-control" id="inputPasName" name="inputPasName" required>
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="inputContact" class="col-sm-3 col-form-label">Contact #:</label>
-                    <div class="col-sm-6">
+                    <div class="col-sm-9">
                         <input type="text" class="form-control" id="inputContact" name="inputContact" required>
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="inputCnic" class="col-sm-3 col-form-label">Cnic:</label>
-                    <div class="col-sm-6">
+                    <div class="col-sm-9">
                         <input type="text" class="form-control" id="inputCnic" name="inputCnic" required>
                     </div>
                 </div>
@@ -79,31 +91,31 @@
 
                 <div class="mb-3 row">
                     <label for="inputSeats" class="col-sm-3 col-form-label">Seats:</label>
-                    <div class="col-sm-6">
+                    <div class="col-sm-9">
                         <input readonly type="text" class="form-control" id="inputSeats" name="inputSeats" required>
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="inputFare" class="col-sm-3 col-form-label">Fare:</label>
-                    <div class="col-sm-2">
-                        <input readonly type="text" class="form-control" id="inputFare" value="{{fare}}">
+                    <div class="col-sm-3">
+                        <input readonly type="text" class="form-control" id="inputFare" value="">
                     </div>
-                    <div class="col-sm-1 px-0">
+                    <div class="col-sm-2 px-0">
                         <input readonly type="text" class="form-control" id="inputNum">
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <input readonly type="text" class="form-control" id="inputTotal">
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="inputSeats" class="col-sm-3 col-form-label">Gender:</label>
-                    <div class="col-sm-2 my-auto">
+                    <div class="col-sm-3 my-auto">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="inputBookedbyGender" id="inlineRadio1" value="1" required>
                             <label class="form-check-label" for="inlineRadio1">Male</label>
                         </div>
                     </div>
-                    <div class="col-sm-2 my-auto">
+                    <div class="col-sm-3 my-auto">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="inputBookedbyGender" id="inlineRadio2" value="0">
                             <label class="form-check-label" for="inlineRadio2">Female</label>
@@ -114,7 +126,7 @@
                 <a href="{% url 'bookingbyschedule' schedule_id=schedule.id %}"><button type="button" name="cancelbooking" class="btn btn-dark btn-lg">Cancel Booking</button></a>
             </form>
         </div>
-        <div class="col-6 seating-structure">
+        <div class="col-8 seating-structure">
             <div class="row">
                 <div class="col-6 reservation_head">
                     <h4>Seats Reserved</h4>

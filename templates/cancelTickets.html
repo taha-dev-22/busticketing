@@ -49,7 +49,7 @@
           <td><div class="form-check">
             <input class="form-check-input" type="checkbox" onclick="total(this.id)" name="ticket" id="check{{tk.id}}" value="{{tk.id}}">
           </div></td>
-          <td>{{tk.schedule.route_assg_bus.route}}</td>
+          <td>{{tk.fare.source}} - {{tk.fare.destination}}</td>
           <td>{{tk.schedule.departure}}</td>
           <td>{{tk.schedule.arrival}}</td>
           {% if tk.gender %}
@@ -58,7 +58,7 @@
           <td>F</td>
           {% endif %}
           <td>{{tk.seat_no}}</td>
-          <td id="{{tk.id}}">{{ fares|get_item:tk.id }}</td>
+          <td id="{{tk.id}}">{{ tk.fare.fare }}</td>
         </tr>
         {% endfor %}
         <tr>
@@ -100,7 +100,7 @@
             var fare = parseInt(document.getElementById(fareid).innerHTML);
             var total = parseInt(document.getElementById('tdTotal').innerHTML);
             total -= fare;
-            document.getElementById('dtTotal').innerHTML = total;
+            document.getElementById('tdTotal').innerHTML = total;
             document.getElementById('inputTotal').value = total;
         }
     }

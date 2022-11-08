@@ -1,7 +1,7 @@
 from this import d
 from unittest import result
 from django.shortcuts import render, redirect
-from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher
+from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher, Route
 from django.contrib.auth.models import User
 from home.bookingHandler import BookingHandler
 from home.ticketingHandler import TicketingHandler
@@ -81,6 +81,7 @@ def schedule(request):
     userterminal = UserofTerminal.objects.get(user=user)
     request.session['uterminal'] = str(userterminal.terminal)
     schedule = Schedule.objects.filter(status=True)
+    routes = Route.objects.all()
     if request.method == "POST":
         date = request.POST['inputDate']
         time = request.POST['inputTime']
@@ -90,10 +91,15 @@ def schedule(request):
                 dt = datetime.combine(datetime.strptime(date, r'%Y-%m-%d'), datetime.time(datetime.strptime(time, r'%H:%M')))
             else:
                 dt = datetime.strptime(date, r'%Y-%m-%d')
-            schedule = Schedule.objects.filter(departure__gte = dt, status=True)
+            if request.POST['inputRoute']:
+                route = Route.objects.get(id=request.POST['inputRoute'])
+                rtb = RouteAssignedToBus.objects.get(route=route)
+                schedule = Schedule.objects.filter(route_assg_bus = rtb, departure__gte = dt, status=True)
+            else:
+                schedule = Schedule.objects.filter(departure__gte = dt, status=True)
         else:
             messages.warning(request, "Please choose a date first!")
-    return render(request, 'index.html', {'schedule': schedule, 'uterminal': userterminal})
+    return render(request, 'index.html', {'schedule': schedule, 'uterminal': userterminal, 'routes': routes})
 
 def booking(request, schedule_id):
     if request.user.is_anonymous:
@@ -122,7 +128,7 @@ def cancelTickets(request):
     if request.user.is_anonymous:
         return redirect('/login')
     result = TicketingHandler.cancelTickets(request)
-    return render(result['request'], 'cancelTickets.html', {'tickets': result['tickets'], 'fares': result['fares'], 'ps_id': result['ps_id']})
+    return render(result['request'], 'cancelTickets.html', {'tickets': result['tickets'], 'ps_id': result['ps_id']})
 
 def cancelReservation(request):
      if request.user.is_anonymous:
@@ -158,7 +164,7 @@ def registerRoute(request):
     if request.user.is_anonymous:
         return redirect('/login')
     result = RegistrationHandler.routeRegisteration(request)
-    return render(result['request'], 'route.html', {'terminals':result['terminals']})
+    return render(result['request'], 'route.html', {'terminals':result['terminals'], 'routes': result['routes']})
 
 def assignRoute(request):
     if request.user.is_anonymous:
@@ -183,16 +189,18 @@ def fares(request):
     if request.user.is_anonymous:
         return redirect('/login')
     result = RegistrationHandler.fares(request)
-    return render(result['request'], 'fares.html', {'fares': result['fares'], 'routetobus': result['routetobus']})
+    return render(result['request'], 'fares.html', {'fares': result['fares'], 'routetobus': result['routetobus'], 'midpoints': result['midpoints']})
 
 def close(request, schedule_id):
     if request.user.is_anonymous:
         return redirect('/login')
     schedule = Schedule.objects.get(id=schedule_id)
-    tickets = Tickets.objects.filter(schedule=schedule).count()
+    tickets = Tickets.objects.filter(schedule=schedule)
     route_to_bus = RouteAssignedToBus.objects.get(id=schedule.route_assg_bus.id)
-    fare = Fares.objects.get(route_asg_to_bus=route_to_bus).fare
-    fare *= tickets
+    fare = 0
+    for i in tickets:
+        fare += i.fare.fare
+    tickets = tickets.count()
     if request.method == "POST":
         data = request.POST
         try:

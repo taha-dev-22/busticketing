@@ -1,3 +1,4 @@
+from statistics import mode
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -56,7 +57,18 @@ class Route(models.Model):
     
     def __str__(self):
         return str(self.source) + ' to ' + str(self.destination) + ' via ' + self.via
+
+class Midpoint(models.Model):
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+    terminal = models.ForeignKey(Terminal, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
+    last_modified = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
+
+    class Meta:
+        verbose_name_plural = 'Midpoint'
     
+    def __str__(self):
+        return str(self.route) + ' - ' + str(self.terminal)
     
 class Passenger(models.Model):
     name = models.CharField(max_length=100)
@@ -72,9 +84,26 @@ class Passenger(models.Model):
     def __str__(self):
         return self.name + ' - ' + self.phone
 
+class Fares(models.Model):
+    route_asg_to_bus = models.ForeignKey("RouteAssignedToBus", on_delete=models.CASCADE)
+    source = models.ForeignKey(Terminal, related_name='fare_source_terminal', on_delete=models.CASCADE)
+    destination = models.ForeignKey(Terminal, related_name='fare_destination_terminal', on_delete=models.CASCADE)
+    fare = models.IntegerField()
+    created = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
+    last_modified = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
+
+    class Meta:
+        verbose_name_plural = 'Fares'
+    
+    def __str__(self):
+        return str(self.source) + ' - ' + str(self.destination) + ' - ' + str(self.route_asg_to_bus.bus.service_type)
+
 class Tickets(models.Model):
     voucher = models.CharField(max_length=100, default= None, null= True)
     schedule = models.ForeignKey("Schedule", on_delete=models.CASCADE)
+    source = models.ForeignKey(Terminal, related_name='ticket_source_terminal', on_delete=models.CASCADE, default=None, null=True)
+    destination = models.ForeignKey(Terminal, related_name='ticket_destination_terminal', on_delete=models.CASCADE, default=None, null=True)
+    fare = models.ForeignKey(Fares, on_delete=models.CASCADE)
     seat_no = models.IntegerField()
     bookedby = models.ForeignKey("Passenger", on_delete=models.CASCADE)
     gender = models.BooleanField()
@@ -89,18 +118,6 @@ class Tickets(models.Model):
     
     def __str__(self):
         return str(self.bookedby) + ' - ' + str(self.schedule) + ' - ' + str(self.status)
-
-class Fares(models.Model):
-    route_asg_to_bus = models.ForeignKey("RouteAssignedToBus", on_delete=models.CASCADE)
-    fare = models.IntegerField()
-    created = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
-    last_modified = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
-
-    class Meta:
-        verbose_name_plural = 'Fares'
-    
-    def __str__(self):
-        return str(self.route_asg_to_bus.route) + ' - ' + str(self.route_asg_to_bus.bus.service_type)
 
 class Voucher(models.Model):
     terminal = models.ForeignKey(Terminal, on_delete=models.SET_NULL, null=True)

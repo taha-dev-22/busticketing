@@ -21,7 +21,7 @@
             <div class="my-2 mx-auto row">
                 <label for="inputRefreshment" class="col-md-1 col-form-label">Refreshment: </label>
                 <div class="col-sm-4">
-                    <input type="number" class="form-control" id="inputRefreshment" name="inputRefreshment" min="0" placeholder="Refreshment charges (Minimum - 0Rs)" required>
+                    <input type="number" class="form-control" id="inputRefreshment" name="inputRefreshment" min="0" placeholder="Refreshment charges (Minimum - 0Rs)" value="" required>
                 </div>
             </div>
 
@@ -31,19 +31,19 @@
             <div class="my-2 mx-auto row">
                 <label for="inputWashing" class="col-md-1 col-form-label">Washing: </label>
                 <div class="col-sm-4">
-                    <input type="number" class="form-control" id="inputWashing" name="inputWashing" min="0" placeholder="Washing charges (Minimum - 0Rs)" required>
+                    <input type="number" class="form-control" id="inputWashing" name="inputWashing" min="0" placeholder="Washing charges (Minimum - 0Rs)" value="" required>
                 </div>
             </div>
             <div class="my-2 mx-auto row">
                 <label for="inputParking" class="col-md-1 col-form-label">Parking: </label>
                 <div class="col-sm-4">
-                    <input type="number" class="form-control" id="inputParking" name="inputParking" min="0" placeholder="Parking charges (Minimum - 0Rs)" required>
+                    <input type="number" class="form-control" id="inputParking" name="inputParking" min="0" placeholder="Parking charges (Minimum - 0Rs)" value="" required>
                 </div>
             </div>
             <div class="my-2 mx-auto row">
                 <label for="inputToll" class="col-md-1 col-form-label">Toll: </label>
                 <div class="col-sm-4">
-                    <input type="number" class="form-control" id="inputToll" name="inputToll" min="0" placeholder="Toll charges (Minimum - 0Rs)" required>
+                    <input type="number" class="form-control" id="inputToll" name="inputToll" min="0" placeholder="Toll charges (Minimum - 0Rs)" value="" required>
                 </div>
             </div>
             <div class="col-sm-4 my-3 text-start">
@@ -78,7 +78,7 @@
                 <td style="border:1px solid #000;text-align:center;">{{schedule.route_assg_bus.route}}</td>
                 <td style="border:1px solid #000;text-align:center;">{{schedule.departure.date}} - {{schedule.departure.time}}</td>
                 <td style="border:1px solid #000;text-align:center;">{{schedule.route_assg_bus.bus}}</td>
-                <td style="border:1px solid #000;text-align:center;">{{ request.user.id }}</td>
+                <td style="border:1px solid #000;text-align:center;">{{ request.user.username }}</td>
             </tr>
         </table>
         <table style="width:100%; margin-top:5px;">
@@ -88,12 +88,14 @@
                 <tr>
                     <th style="border:1px solid #000;text-align:center;">Total Seats</th>
                     <th style="border:1px solid #000;text-align:center;">Occupied seats</th>
-                    <th style="border:1px solid #000;text-align:center;">fare</th>
+                    <th style="border:1px solid #000;text-align:center;">Fare</th>
+                    <th style="border:1px solid #000;text-align:center;">Total fare</th>
                 </tr>
                 <tr>
                     <td style="border:1px solid #000;text-align:center;">{{ route_bus.bus.seating_capacity }}</td>
                     <td style="border:1px solid #000;text-align:center;">{{ tickets }}</td>
-                    <td style="border:1px solid #000;text-align:center;">{{ fare }}</td>
+                    <td id="totalFare" style="border:1px solid #000;text-align:center;">{{ fare }}</td>
+                    <td id="Fare" style="border:1px solid #000;text-align:center;">{{ fare }}</td>
                 </tr>
         </table>
         <table style="width:100%; margin-top:5px;">
@@ -107,10 +109,16 @@
                 <th style="border:1px solid #000;text-align:center;">Toll</th>
             </tr>
             <tr>
-                <td style="border:1px solid #000;text-align:center;">0</td>
-                <td style="border:1px solid #000;text-align:center;">0</td>
-                <td style="border:1px solid #000;text-align:center;">0</td>
-                <td style="border:1px solid #000;text-align:center;">0</td>
+                <td id="dspRefreshment" style="border:1px solid #000;text-align:center;">0</td>
+                <td id="dspWashing" style="border:1px solid #000;text-align:center;">0</td>
+                <td id="dspParking" style="border:1px solid #000;text-align:center;">0</td>
+                <td id="dspToll" style="border:1px solid #000;text-align:center;">0</td>
+            </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th style="border:1px solid #000;text-align:center;">Total</th>
+                <th style="border:1px solid #000;text-align:center;" id="dspDeduction">0</th>
             </tr>
     </table>
     </div>
@@ -123,6 +131,18 @@
             var voucher = scid + '-' + Date.now();
             document.getElementById('bill-voucher').innerHTML = voucher;
             document.getElementById('inputVoucher').value = voucher;
+            var deduction = parseInt(document.getElementById('inputRefreshment').value) || 0;
+            deduction += parseInt(document.getElementById('inputWashing').value) || 0;
+            deduction += parseInt(document.getElementById('inputParking').value) || 0;
+            deduction += parseInt(document.getElementById('inputToll').value) || 0;
+            document.getElementById('totalFare').innerHTML = parseInt(document.getElementById('Fare').innerHTML) - deduction;
+
+            document.getElementById('dspRefreshment').innerHTML = document.getElementById('inputRefreshment').value;
+            document.getElementById('dspWashing').innerHTML = document.getElementById('inputWashing').value;
+            document.getElementById('dspParking').innerHTML = document.getElementById('inputParking').value;
+            document.getElementById('dspToll').innerHTML = document.getElementById('inputToll').value;
+            document.getElementById('dspDeduction').innerHTML = deduction;
+
             var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
             var prtContent = document.getElementById("voucher");
             WinPrint.document.close();

@@ -10,49 +10,69 @@
   <hr>
   <div class="container">
     {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                <strong>{{ message }}</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      <strong>{{ message }}</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <form method="post" name="schedule-form" class="mx-auto" id="schedule-form" action="">
+      {% csrf_token %}
+      <div class="mb-3 row">
+        <label for="inputRoute" class="col-sm-1 col-form-label">Route</label>
+        <div class="col-sm-3">
+          <select name="inputRoute" class="form-control" id="inputRoute">
+            <option value="" selected>Select Route</option>
+            {% if routes %}
+            {% for route in routes %}
+            <option value="{{route.id}}">{{route}}</option>
             {% endfor %}
-  {% endif %}
-  <form method="post" name="schedule-form" class="mx-auto" id="schedule-form" action="">
-    {% csrf_token %}
-      <label for="inputDate" class="form-label">Date: </label>
-      <input type="date" class="form-control" id="inputDate" name="inputDate" style="display:inline; width:20%;">
-      <label for="inputTime" class="form-label">After: </label>
-      <input type="time" class="form-control" id="inputTime" name="inputTime" style="display:inline; width:20%;">
-    <button type="submit" class="btn btn-primary">Search</button>
-  </form>
-</div>
+            {% endif %}
+          </select>
+        </div>
+        <label for="inputDate" class="col-sm-1 col-form-label">Date: </label>
+        <div class="col-sm-2">
+          <input type="date" class="form-control" id="inputDate" name="inputDate">
+        </div>
+        <label for="inputTime" class="col-sm-1 col-form-label">After: </label>
+        <div class="col-sm-2">
+          <input type="time" class="form-control" id="inputTime" name="inputTime">
+        </div>
+        <div class="col-sm-2">
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 <div class="container">
-    <table class="schedule">
-        <tr>
-          <th>ROUTE</th>
-          <th>DEPT. TIME</th>
-          <th>ARRIVAL TIME</th>
-          <th>SERVICE TYPE</th>
-          <th>BUS NO</th>
-          <th>TOTAL SEATS</th>
-          <th>Actions</th>
-          <th>Close</th>
-        </tr>
-        {% for sc in schedule %}
-        <tr class="tr">
-          <td>{{sc.route_assg_bus.route}}</td>
-          <td>{{sc.departure}}</td>
-          <td>{{sc.arrival}}</td>
-          <td>{{sc.route_assg_bus.bus.service_type}}</td>
-          <td>{{sc.route_assg_bus.bus}}</td>
-          <td>{{sc.route_assg_bus.bus.seating_capacity}}</td>
-          <td><a href="{% url 'ticketing' schedule_id=sc.id %}"><img src="{% static 'images/purchase.png' %}"></a> <a href="{% url 'booking' schedule_id=sc.id %}"><img src="{% static 'images/book.png' %}"></a>
-              </a> <a href="{% url 'addtime' schedule_id=sc.id %}"><img src="{% static 'images/time.png' %}"></a>
-          </td>
-          <td><a href="{% url 'close' schedule_id=sc.id %}"><img src="{% static 'images/lock.png' %}"></a></td>
-        </tr>
-        {% endfor %}
-      </table>
+  <table class="schedule">
+    <tr>
+      <th>ROUTE</th>
+      <th>DEPT. TIME</th>
+      <th>ARRIVAL TIME</th>
+      <th>SERVICE TYPE</th>
+      <th>BUS NO</th>
+      <th>TOTAL SEATS</th>
+      <th>Actions</th>
+      <th>Close</th>
+    </tr>
+    {% for sc in schedule %}
+    <tr class="tr">
+      <td>{{sc.route_assg_bus.route}}</td>
+      <td>{{sc.departure}}</td>
+      <td>{{sc.arrival}}</td>
+      <td>{{sc.route_assg_bus.bus.service_type}}</td>
+      <td>{{sc.route_assg_bus.bus}}</td>
+      <td>{{sc.route_assg_bus.bus.seating_capacity}}</td>
+      <td><a href="{% url 'ticketing' schedule_id=sc.id %}"><img src="{% static 'images/purchase.png' %}"></a> <a
+          href="{% url 'booking' schedule_id=sc.id %}"><img src="{% static 'images/book.png' %}"></a>
+        </a> <a href="{% url 'addtime' schedule_id=sc.id %}"><img src="{% static 'images/time.png' %}"></a>
+      </td>
+      <td><a href="{% url 'close' schedule_id=sc.id %}"><img src="{% static 'images/lock.png' %}"></a></td>
+    </tr>
+    {% endfor %}
+  </table>
 </div>
 {%endblock body%}

@@ -49,7 +49,44 @@
               </select>
             </div>
           </div>
-          <button type="submit" class="btn btn-dark btn-md">Register</button>
+          <button type="submit" name="route" class="btn btn-dark btn-md">Register</button>
     </form>
+</div>
+
+<!--   Register MidPoint    -->
+
+<div class="container">
+  <h1>REGISTER MidPoint</h1>
+  <hr>
+</div>
+<div class="container my-3">
+  <form method="post" name="register" action="">
+      {% csrf_token %}
+      <div class="mb-3 row">
+          <label for="inputRoute" class="col-sm-2 col-form-label">Route</label>
+          <div class="col-sm-4">
+            <select name="inputRoute" class="form-control" id="inputRoute" required>
+              {% if routes %}
+                 {% for route in routes %}
+                 <option value="{{route.id}}">{{route}}</option>
+                 {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label for="inputTerminal" class="col-sm-2 col-form-label">Terminal</label>
+          <div class="col-sm-4">
+            <select name="inputTerminal" class="form-control" id="inputTerminal" required>
+              {% if terminals %}
+                 {% for terminal in terminals %}
+                   <option value="{{terminal.id}}">{{terminal}}</option>
+                 {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+        </div>
+        <button type="submit" name="midpoint" class="btn btn-dark btn-md">Register</button>
+  </form>
 </div>
 {%endblock body%}

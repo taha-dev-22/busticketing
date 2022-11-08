@@ -19,12 +19,6 @@
             {% endif %}
     <form method="post" name="register" action="">
         {% csrf_token %}
-        <div class="mb-3 row">
-            <label for="inputFare" class="col-sm-2 col-form-label">Fare</label>
-            <div class="col-sm-4">
-                <input type="number" class="form-control" id="inputFare" name="inputFare" min="100" required>
-            </div>
-          </div>
           <div class="mb-3 row">
             <label for="inputRoute" class="col-sm-2 col-form-label">Route</label>
             <div class="col-sm-4">
@@ -37,6 +31,38 @@
               </select>
             </div>
           </div>
+          <div class="mb-3 row">
+            <label for="inputSrc" class="col-sm-2 col-form-label">Source</label>
+            <div class="col-sm-4">
+              <select name="inputSrc" class="form-control" id="inputSrc">
+                <option value="" selected>None</option>
+                {% if midpoints %}
+                   {% for mp in midpoints %}
+                     <option value="{{mp.terminal.id}}">{{mp.terminal}}</option>
+                   {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputDest" class="col-sm-2 col-form-label">Destination</label>
+            <div class="col-sm-4">
+              <select name="inputDest" class="form-control" id="inputDest">
+                <option value="" selected>None</option>
+                {% if midpoints %}
+                   {% for mp in midpoints %}
+                     <option value="{{mp.terminal.id}}">{{mp.terminal}}</option>
+                   {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputFare" class="col-sm-2 col-form-label">Fare</label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="inputFare" name="inputFare" min="100" required>
+            </div>
+          </div>
           <button type="submit" class="btn btn-dark btn-md">Assign</button>
     </form>
 </div>
@@ -45,11 +71,15 @@
     <table class="bookings mx-auto">
         <tr>
           <th>ROUTE</th>
+          <th>SOURCE</th>
+          <th>DESTINATION</th>
           <th>FARE</th>
         </tr>
         {% for fare in fares %}
         <tr class="tr">
           <td>{{fare.route_asg_to_bus.route}} - {{fare.route_asg_to_bus.bus.service_type}}</td>
+          <td>{{fare.source}}</td>
+          <td>{{fare.destination}}</td>
           <td>{{fare.fare}}</td>
         </tr>
         {% endfor %}

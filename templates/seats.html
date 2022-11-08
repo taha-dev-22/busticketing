@@ -8,10 +8,7 @@
         <td class="seat_bound">
             {% if i in seating %}
                 {% if seating|get_gender:i %}
-                <img class="male" id="{{i}}" style="height:48px; width:48px;" src="{% static 'images/seat_male-overlay.png' %}" alt="Seat">
-                <p style="margin-bottom:2px;" class="font-male"><b>{{i}}</b></p>
-                <p class="ticket-status font-male" style="line-height: 0.2;">
-                    <b>
+                <p style="margin-bottom:1px;font-size:12px;"><b>
                     {% if seating|get_status:i  == 2 %}
                     <span style="color:#ff0f0f;">
                         sold
@@ -21,18 +18,16 @@
                         booked
                         </span>
                     {% endif %}
-                    </b>
-                </p>
+                    </b></p>
+                <img class="male" id="{{i}}" style="height:48px; width:48px;" src="{% static 'images/seat_male-overlay.png' %}" alt="Seat">
+                <p style="margin-bottom:2px;" class="font-male"><b>{{i}}</b></p>
                 <p style="line-height: 0.2;font-size:12px;">
                     <b>
                     {{ seating|get_bookedcity:i }}
                     </b>
                 </p>
                 {% else %}
-                <img class="female" id="{{i}}" style="height:48px; width:48px;" src="{% static 'images/seat_female-overlay.png' %}" alt="Seat">
-                <p style="margin-bottom:2px;" class="font-female"><b>{{i}}</b></p>
-                <p class="ticket-status" style="line-height: 0.2;">
-                    <b>
+                <p style="margin-bottom:1px;font-size:12px;"><b>
                     {% if seating|get_status:i  == 2 %}
                     <span style="color:#ff0f0f;">
                      sold
@@ -42,8 +37,10 @@
                     booked
                     </span>
                     {% endif %}
-                    </b>
-                </p>
+                </b>
+            </p>
+                <img class="female" id="{{i}}" style="height:48px; width:48px;" src="{% static 'images/seat_female-overlay.png' %}" alt="Seat">
+                <p style="margin-bottom:2px;" class="font-female"><b>{{i}}</b></p>
                 <p style="line-height: 0.2;font-size:12px;">
                     <b>
                     {{ seating|get_bookedcity:i }}
@@ -51,11 +48,11 @@
                 </p>
                 {% endif %}
             {% else %}
-            <img class="empty clickable" id="{{i}}" onclick="selectSeat(this.id)" style="height:48px; width:48px;" src="{% static 'images/seat_empty.png' %}" alt="Seat">
-            <p style="margin-bottom:2px;"><b>{{i}}</b></p>
             <p style="line-height: 0.2;font-size:12px;">
                 <b>- -</b>
             </p>
+            <img class="empty clickable" id="{{i}}" onclick="selectSeat(this.id)" style="height:48px; width:48px;" src="{% static 'images/seat_empty.png' %}" alt="Seat">
+            <p style="margin-bottom:2px;"><b>{{i}}</b></p>
             <p style="line-height: 0.2;font-size:12px;">
                 <b>- -</b>
             </p>
@@ -69,10 +66,41 @@
 {% block script %}<script type="text/JavaScript">
     var seats = {};
     var genders = {};
-    var fare = parseInt(document.getElementById('fare').innerHTML);
+    var fares = {};
+    var farestr = document.getElementById('fare').innerHTML;
+    farestr = farestr.split(";");
+    for (let i = 0; i < farestr.length; i++) 
+    {
+        fares[farestr[i].split(":")[0]] = farestr[i].split(":")[1]
+    }
+    var fare = fares[Object.keys(fares)[0]]
+    document.getElementById('inputFare').value = parseInt(fare);
+    console.log(fares)
+function setFair(value)
+{
+    console.log(value);
+    fare = parseInt(fares[value]);
+    var qty = parseInt(document.getElementById('inputNum').value);
+    document.getElementById('inputFare').value = fare;
+    document.getElementById('inputFare').innerHTML = fare;
+    if(qty)
+    {
+    document.getElementById('inputTotal').value = qty * fare;
+    var mode = document.getElementById("ticketing-form");
+    if(mode)
+    {
+        document.getElementById('seatqty').innerHTML = Object.keys(seats).length;
+        document.getElementById('totalprice').innerHTML = Object.keys(seats).length * fare;
+        document.getElementById('seatnumber').innerHTML = Object.keys(seats).toString();
+        document.getElementById('seatgender').innerHTML = Object.values(genders).toString();
+        document.getElementById('seatprice').innerHTML = document.getElementById('inputFare').value;
+    }
+    }
+}
 function selectSeat(id) 
 {
     var seat = document.getElementById(id);
+    console.log(seat.src);
     var name = seat.src.split("/");
     name = name[name.length-1];
     console.log(name);
@@ -85,6 +113,9 @@ function selectSeat(id)
         if(mode)
         document.getElementById('seatqty').innerHTML = Object.keys(seats).length;
         
+        if(mode)
+        document.getElementById('seatprice').innerHTML = document.getElementById('inputFare').value;
+
         document.getElementById('inputTotal').value = Object.keys(seats).length * fare;
         if(mode)
         document.getElementById('totalprice').innerHTML = Object.keys(seats).length * fare;
@@ -112,6 +143,9 @@ function selectSeat(id)
         document.getElementById('inputNum').value = Object.keys(seats).length;
         if(mode)
         document.getElementById('seatqty').innerHTML = Object.keys(seats).length;
+
+        if(mode)
+        document.getElementById('seatprice').innerHTML = document.getElementById('inputFare').value;
 
         document.getElementById('inputTotal').value = Object.keys(seats).length * fare;
         if(mode)
@@ -145,6 +179,8 @@ function printBill()
     var scid = document.getElementById('scid').innerHTML;
     var voucher = scid + '-' + Date.now();
     document.getElementById('bill-voucher').innerHTML = voucher;
+    var sid = document.getElementById('inputRoute').options.selectedIndex;
+    document.getElementById('bill-route').innerHTML = "<strong>Route:</strong> " + document.getElementById('inputRoute').options[sid].innerHTML;
     document.getElementById('inputVoucher').value = voucher;
     var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
     var prtContent = document.getElementById("ticket");

@@ -47,7 +47,7 @@
           <td><div class="form-check">
             <input class="form-check-input" type="checkbox" name="ticket" value="{{tk.id}}" id="flexCheckDefault">
           </div></td>
-          <td>{{tk.schedule.route_assg_bus.route}}</td>
+          <td>{{tk.fare.source}} - {{tk.fare.destination}}</td>
           <td>{{tk.schedule.departure}}</td>
           <td>{{tk.schedule.arrival}}</td>
           {% if tk.gender %}

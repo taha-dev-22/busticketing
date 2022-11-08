@@ -21,23 +21,23 @@ class BookingHandler():
                     ps.save()
                 seats = [int(i) for i in data['inputSeats'].split(',')]
                 genders = [int(i) for i in data['inputGenders'].split(',')]
+                fare = Fares.objects.get(id=int(data['inputRoute']))
                 for i in range(len(seats)):
-                    tk = Tickets(voucher = data['inputVoucher'], schedule = schedule, seat_no = seats[i], bookedby = ps, gender = genders[i], status = 1, type = 1, issuedby = request.user)
+                    tk = Tickets(voucher = data['inputVoucher'], schedule = schedule, seat_no = seats[i], fare = fare, bookedby = ps, gender = genders[i], status = 1, type = 1, issuedby = request.user)
                     tk.save()
                 messages.success(request, 'Tickets has been booked successfully!')
             except Exception as e:
                 messages.warning(request, e)
         tickets = Tickets.objects.filter(schedule=schedule_id)
-        fare = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus).values('fare')[0]['fare']
+        fares = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus)
         seating = {}
         for i in tickets.values():
-            user = User.objects.get(id=i['issuedby_id'])
-            uterminal = UserofTerminal.objects.get(user=user)
-            bookedincity = uterminal.terminal.city
+            fare = Fares.objects.get(id=i['fare_id'])
+            bookedincity = fare.source.city
             gender = i['gender']
             status = i['status']
             seating[i['seat_no']] =  {'gender':gender, 'status':status, 'bookedincity':bookedincity}
-        result = {'schedule': schedule, 'seating': seating, 'range': range(schedule.route_assg_bus.bus.seating_capacity), 'fare': fare}
+        result = {'schedule': schedule, 'seating': seating, 'range': range(schedule.route_assg_bus.bus.seating_capacity), 'fares': fares}
         dt = {'request': request, 'result': result}
         return dt
     

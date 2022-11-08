@@ -31,3 +31,14 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 register.filter('get_item', get_item)
+
+def get_fare(fares):
+    result = ''
+    for fare in range(len(fares)):
+        result += str(fares[fare].id) + ':' + str(fares[fare].fare)
+        if fare != len(fares):
+            result += ';'
+    print(result)
+    return result[:len(result)-1]
+
+register.filter('get_fare', get_fare)

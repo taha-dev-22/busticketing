@@ -24,6 +24,7 @@
       <tr>
         <th>Select</th>
         <th>SEAT</th>
+        <th>ROUTE</th>
         <th>GENDER</th>
         <th>BOOKED BY</th>
         <th>CNIC</th>
@@ -38,6 +39,7 @@
           </div>
         </td>
         <td>{{tk.seat_no}}</td>
+        <td>{{tk.fare.source}} - {{tk.fare.destination}}</td>
         {% if tk.gender %}
         <td>M</td>
         {% else %}
