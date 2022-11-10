@@ -11,8 +11,15 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
   </head>
   <body class="text-center login-body">
-    
 <main class="form-signin w-100 m-auto">
+  {% if messages %}
+              {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                  <strong>{{ message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endfor %}
+    {% endif %}
   <form method="post" action="">
     {% csrf_token %}
     <h1><b>MBM</b></h1>
@@ -29,9 +36,6 @@
     <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
     <p class="mt-5 mb-3 text-muted">&copy; 2022</p>
   </form>
-</main>
-
-
-    
+</main>    
   </body>
 </html>

@@ -33,7 +33,7 @@
         </div>
         <label for="inputDate" class="col-sm-1 col-form-label">Date: </label>
         <div class="col-sm-2">
-          <input type="date" class="form-control" id="inputDate" name="inputDate">
+          <input type="date" class="form-control" id="inputDate" name="inputDate" value="">
         </div>
         <label for="inputTime" class="col-sm-1 col-form-label">After: </label>
         <div class="col-sm-2">
@@ -75,4 +75,15 @@
     {% endfor %}
   </table>
 </div>
+{% block script %}
+<script type="text/JavaScript">
+  var date = new Date();
+  var currentDate = date.toISOString().slice(0,10);
+  var currentTime = date.getHours() + ':' + date.getMinutes();
+  datearr = currentDate.split('-');
+  console.log(datearr);
+  document.getElementById('inputDate').value = currentDate;
+  document.getElementById('inputTime').value = currentTime;
+</script>
+{% endblock script %}
 {%endblock body%}

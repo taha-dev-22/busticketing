@@ -27,6 +27,11 @@ def get_bookedcity(dictionary, key):
 
 register.filter('get_bookedcity', get_bookedcity)
 
+def get_destcity(dictionary, key):
+    return dictionary[key]['destcity']
+
+register.filter('get_destcity', get_destcity)
+
 def get_item(dictionary, key):
     return dictionary.get(key)
 

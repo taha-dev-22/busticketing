@@ -2,68 +2,103 @@
 {% load myfilters %}
 <table class="seats my-2" dir="rtl">
     {% for i in capacity|range%}
-        {% if i|returnrem:4 == 1 %}
-        <tr>
+    {% if i|returnrem:4 == 1 %}
+    <tr>
         {% endif %}
         <td class="seat_bound">
             {% if i in seating %}
-                {% if seating|get_gender:i %}
-                <p style="margin-bottom:1px;font-size:12px;"><b>
-                    {% if seating|get_status:i  == 2 %}
-                    <span style="color:#ff0f0f;">
-                        sold
-                       </span>
-                    {% else %}
-                    <span style="color:#ff870f;">
-                        booked
-                        </span>
-                    {% endif %}
-                    </b></p>
-                <img class="male" id="{{i}}" style="height:48px; width:48px;" src="{% static 'images/seat_male-overlay.png' %}" alt="Seat">
-                <p style="margin-bottom:2px;" class="font-male"><b>{{i}}</b></p>
-                <p style="line-height: 0.2;font-size:12px;">
-                    <b>
-                    {{ seating|get_bookedcity:i }}
-                    </b>
-                </p>
-                {% else %}
-                <p style="margin-bottom:1px;font-size:12px;"><b>
-                    {% if seating|get_status:i  == 2 %}
-                    <span style="color:#ff0f0f;">
-                     sold
-                    </span>
-                    {% else %}
-                    <span style="color:#ff870f;">
-                    booked
-                    </span>
-                    {% endif %}
-                </b>
-            </p>
-                <img class="female" id="{{i}}" style="height:48px; width:48px;" src="{% static 'images/seat_female-overlay.png' %}" alt="Seat">
-                <p style="margin-bottom:2px;" class="font-female"><b>{{i}}</b></p>
-                <p style="line-height: 0.2;font-size:12px;">
-                    <b>
-                    {{ seating|get_bookedcity:i }}
-                    </b>
-                </p>
-                {% endif %}
+            {% if seating|get_gender:i %}
+            <div class="row mb-3">
+                <div class="col-sm-8 text-start">
+                    <p style="margin-bottom:1px;font-size:12px;"><b>
+                            {% if seating|get_status:i == 2 %}
+                            <span style="color:#ff0f0f;">
+                                ticket
+                            </span>
+                            {% else %}
+                            <span style="color:#ff870f;">
+                                booked
+                            </span>
+                            {% endif %}
+                        </b></p>
+                    <p style="margin-bottom:1px;font-size:12px;">
+                        <b>
+                            {{ seating|get_bookedcity:i }}
+                        </b>
+                    </p>
+                    <p style="line-height: 0.2;font-size:12px;">
+                        <b>
+                            {{ seating|get_destcity:i }}
+                        </b>
+                    </p>
+                </div>
+                <div class="col-sm-4">
+                    <img class="male" id="{{i}}" style="height:36px; width:36px;"
+                        src="{% static 'images/seat_male-overlay.png' %}" alt="Seat">
+                    <p style="margin-bottom:2px;" class="font-male"><b>{{i}}</b></p>
+                </div>
+            </div>
             {% else %}
-            <p style="line-height: 0.2;font-size:12px;">
-                <b>- -</b>
-            </p>
-            <img class="empty clickable" id="{{i}}" onclick="selectSeat(this.id)" style="height:48px; width:48px;" src="{% static 'images/seat_empty.png' %}" alt="Seat">
-            <p style="margin-bottom:2px;"><b>{{i}}</b></p>
-            <p style="line-height: 0.2;font-size:12px;">
-                <b>- -</b>
-            </p>
+            <div class="row mb-3">
+                <div class="col-sm-8 text-start">
+                    <p style="margin-bottom:1px;font-size:12px;"><b>
+                            {% if seating|get_status:i == 2 %}
+                            <span style="color:#ff0f0f;">
+                                ticket
+                            </span>
+                            {% else %}
+                            <span style="color:#ff870f;">
+                                booked
+                            </span>
+                            {% endif %}
+                        </b>
+                    </p>
+                    <p style="margin-bottom:1px;font-size:12px;">
+                        <b>
+                            {{ seating|get_bookedcity:i }}
+                        </b>
+                    </p>
+                    <p style="line-height: 0.2;font-size:12px;">
+                        <b>
+                            {{ seating|get_destcity:i }}
+                        </b>
+                    </p>
+                </div>
+                <div class="col-sm-4">
+                    <img class="female" id="{{i}}" style="height:36px; width:36px;"
+                        src="{% static 'images/seat_female-overlay.png' %}" alt="Seat">
+                    <p style="margin-bottom:2px;" class="font-female"><b>{{i}}</b></p>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="row mb-3">
+                <div class="col-sm-8 text-start">
+                    <p style="margin-bottom:1px;font-size:12px;">
+                        <b>- -</b>
+                    </p>
+                    <p style="margin-bottom:1px;font-size:12px;">
+                        <b>- -</b>
+                    </p>
+                    <p style="line-height: 0.2;font-size:12px;">
+                        <b>- -</b>
+                    </p>
+                </div>
+                <div class="col-sm-4">
+                    <img class="empty clickable" id="{{i}}" onclick="selectSeat(this.id)"
+                        style="height:36px; width:36px;" src="{% static 'images/seat_empty.png' %}" alt="Seat">
+                    <p style="margin-bottom:2px;"><b>{{i}}</b></p>
+                </div>
+            </div>
             {% endif %}
         </td>
         {% if i|returnrem:4 == 0 %}
-        </tr>
-        {% endif %}
+    </tr>
+    {% endif %}
     {% endfor %}
 </table>
-{% block script %}<script type="text/JavaScript">
+{% block script %}
+<script type="text/JavaScript">
     var seats = {};
     var genders = {};
     var fares = {};

@@ -57,7 +57,7 @@
                       <select name="inputRoute" onchange="setFair(this.value);" class="form-control" id="inputRoute">
                         {% if fares %}
                            {% for fare in fares %}
-                             <option value="{{fare.id}}">{{fare.source}} - {{fare.destination}}</option>
+                             <option value="{{fare.id}}">{{fare.source.city}} - {{fare.destination.city}}</option>
                            {% endfor %}
                         {% endif %}
                       </select>

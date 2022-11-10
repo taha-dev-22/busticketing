@@ -34,9 +34,10 @@ class TicketingHandler():
         for i in tickets.values():
             fare = Fares.objects.get(id=i['fare_id'])
             bookedincity = fare.source.city
+            destcity = fare.destination.city
             gender = i['gender']
             status = i['status']
-            seating[i['seat_no']] =  {'gender':gender, 'status':status, 'bookedincity':bookedincity}
+            seating[i['seat_no']] =  {'gender':gender, 'status':status, 'bookedincity':bookedincity, 'destcity': destcity}
         result = {'schedule': schedule, 'seating': seating, 'range': range(schedule.route_assg_bus.bus.seating_capacity), 'fares': fares}
         dt = {'request': request, 'result': result}
         return dt

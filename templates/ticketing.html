@@ -57,7 +57,7 @@
                       <select name="inputRoute" onchange="setFair(this.value);" class="form-control" id="inputRoute">
                         {% if fares %}
                            {% for fare in fares %}
-                             <option value="{{fare.id}}">{{fare.source}} - {{fare.destination}}</option>
+                             <option value="{{fare.id}}">{{fare.source.city}} - {{fare.destination.city}}</option>
                            {% endfor %}
                         {% endif %}
                       </select>
@@ -128,7 +128,7 @@
             <div class="ticket hidden-element" id="ticket">
                 <div class="text-center">
                 <h1 style="text-align:center;">MBM</h1>
-                <p style="text-align:center;"><strong>Voucher:</strong> <span id="bill-voucher"></span></p>
+                <p style="text-align:center;"><strong>Ticket Id:</strong> <span id="bill-voucher"></span></p>
                 <p id="bill-route" style="text-align:center;"></p>
                 <p id="bill-departure" style="text-align:center;"><strong>Departure:</strong> {{schedule.departure.date}} - {{schedule.departure.time}}</p>
                 <p id="bill-bus" style="text-align:center;"><strong>Bus:</strong> {{schedule.route_assg_bus.bus}}</p>

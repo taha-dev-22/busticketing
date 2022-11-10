@@ -39,7 +39,7 @@ class UserHandler():
     def viewUsers(request):
         users = None
         try:
-            users = User.objects.all()
+            users = User.objects.all().order_by('-is_active').values()
         except Exception as e:
             messages.warning(request, e)
         return {'request': request, 'Users': users}

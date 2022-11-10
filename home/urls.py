@@ -15,6 +15,7 @@ urlpatterns = [
     path('cancelreservation', views.cancelReservation, name='cancelReservation'),
     path('time/<int:schedule_id>', views.addtime, name='addtime'),
     path('edituser/<int:user_id>', views.edituser, name='edituser'),
+    path('removeuser/<int:user_id>', views.removeuser, name='removeuser'),
     path('close/<int:schedule_id>', views.close, name='close'),
     path('driver', views.registerDriver, name='driver'),
     path('bus', views.registerBus, name='bus'),

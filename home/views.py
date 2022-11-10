@@ -33,6 +33,23 @@ def edituser(request, user_id):
     result = UserHandler.editUsers(request, user_id)
     return render(result['request'], 'edituser.html', {'User': result['User'], 'udata': result['udata'], 'uterminal': result['uterminal'], 'terminals': result['terminals']})
 
+def removeuser(request, user_id):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    if not request.user.is_superuser:
+        return redirect('/warning')
+    if user_id == request.user.id:
+        messages.warning(request, 'You cannot remove yourself from users!')
+    else:
+        try:
+            user = User.objects.get(id=user_id)
+            user.is_active = False
+            user.save()
+            messages.success(request, 'User removed successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return viewUsers(request)
+
 def viewUsers(request):
     if request.user.is_anonymous:
         return redirect('/login')
@@ -55,10 +72,12 @@ def loginUser(request):
         username = request.POST.get('inputUsername')
         password = request.POST.get('inputPassword')
         user = authenticate(username=username, password=password)
+        print(user)
         if user is not None:
             login(request, user)
             return redirect("/")
         else:
+            messages.warning(request, 'User is not available!')
             return render(request, 'login.html')
     return render(request, 'login.html')
 
