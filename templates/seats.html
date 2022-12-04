@@ -195,7 +195,8 @@ function selectSeat(id)
         document.getElementById('seatgender').innerHTML = Object.values(genders).toString();
     }
 }
-function validateForm(id) {
+function validateForm(id)
+{
     let x = document.forms["booking"]["inputSeats"].value;
     if (x == "") {
       alert("You must Select atleast 1 seat to proceed!");
@@ -211,15 +212,26 @@ function validateForm(id) {
 
 function printBill()
 {
+    document.getElementById('bill-pname').innerHTML = document.getElementById('inputPasName').value;
+    var discount = parseInt(document.getElementById('inputDiscount').value);
+    document.getElementById('bill-disc').innerHTML = discount;
+    var totalFare = parseInt(fare) * Object.keys(seats).length;
+    var discountTotal = discount * Object.keys(seats).length;
+    document.getElementById('bill-discTotal').innerHTML = discountTotal;
+    var totalPayable = 0;
+    if(discountTotal < totalFare)
+    totalPayable = totalFare - discountTotal;
+    document.getElementById('bill-TotalPayable').innerHTML = totalPayable;
     var scid = document.getElementById('scid').innerHTML;
     var voucher = scid + '-' + Date.now();
     document.getElementById('bill-voucher').innerHTML = voucher;
     var sid = document.getElementById('inputRoute').options.selectedIndex;
-    document.getElementById('bill-route').innerHTML = "<strong>Route:</strong> " + document.getElementById('inputRoute').options[sid].innerHTML;
+    document.getElementById('bill-route').innerHTML = document.getElementById('inputRoute').options[sid].innerHTML;
     document.getElementById('inputVoucher').value = voucher;
     var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
     var prtContent = document.getElementById("ticket");
     WinPrint.document.close();
+    WinPrint.document.write(prtContent.innerHTML);
     WinPrint.document.write(prtContent.innerHTML);
     WinPrint.print();
     WinPrint.focus();

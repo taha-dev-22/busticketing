@@ -17,7 +17,7 @@
     </div>
     {% endfor %}
     {% endif %}
-    <form method="post" name="schedule-form" class="mx-auto" id="schedule-form" action="">
+    <form method="post" name="schedule-form" class="mx-auto" id="schedule-form" action="/schedule">
       {% csrf_token %}
       <div class="mb-3 row">
         <label for="inputRoute" class="col-sm-1 col-form-label">Route</label>
@@ -66,9 +66,9 @@
       <td>{{sc.route_assg_bus.bus.service_type}}</td>
       <td>{{sc.route_assg_bus.bus}}</td>
       <td>{{sc.route_assg_bus.bus.seating_capacity}}</td>
-      <td><a href="{% url 'ticketing' schedule_id=sc.id %}"><img src="{% static 'images/purchase.png' %}"></a> <a
-          href="{% url 'booking' schedule_id=sc.id %}"><img src="{% static 'images/book.png' %}"></a>
-        </a> <a href="{% url 'addtime' schedule_id=sc.id %}"><img src="{% static 'images/time.png' %}"></a>
+      <td><a href="{% url 'ticketing' schedule_id=sc.id %}" tooltip="ticket"><img src="{% static 'images/purchase.png' %}"></a> <a
+          href="{% url 'booking' schedule_id=sc.id %}" tooltip="book"><img src="{% static 'images/book.png' %}"></a>
+        </a> <a href="{% url 'addtime' schedule_id=sc.id %}" tooltip="Add Time"><img src="{% static 'images/time.png' %}"></a>
       </td>
       <td><a href="{% url 'close' schedule_id=sc.id %}"><img src="{% static 'images/lock.png' %}"></a></td>
     </tr>
@@ -79,9 +79,15 @@
 <script type="text/JavaScript">
   var date = new Date();
   var currentDate = date.toISOString().slice(0,10);
-  var currentTime = date.getHours() + ':' + date.getMinutes();
+
+  var currentHours = date.getHours();
+  currentHours = ("0" + currentHours).slice(-2);
+
+  var currentMins = date.getMinutes();
+  currentMins = ("0" + currentMins).slice(-2);
+
+  var currentTime = currentHours + ':' + currentMins;
   datearr = currentDate.split('-');
-  console.log(datearr);
   document.getElementById('inputDate').value = currentDate;
   document.getElementById('inputTime').value = currentTime;
 </script>

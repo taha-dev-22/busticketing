@@ -1,7 +1,6 @@
-from this import d
-from unittest import result
 from django.shortcuts import render, redirect
-from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher, Route
+from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher, Route, Closedby, Midpoint, TicketsAudit
+from home.auditHandler import AuditHandler
 from django.contrib.auth.models import User
 from home.bookingHandler import BookingHandler
 from home.ticketingHandler import TicketingHandler
@@ -9,12 +8,36 @@ from home.registerationHandler import RegistrationHandler
 from home.userHandler import UserHandler
 from django.contrib import messages
 from datetime import timedelta, datetime
+from django.db.models import Q
 from django.contrib.auth import logout, authenticate, login
 # Create your views here.
 
 def importData(request):
     if request.user.is_anonymous:
         return redirect('/login')
+    if request.method == "POST":
+        fromdate = request.POST['inputFromDate']
+        fromdate = datetime.strptime(fromdate, r'%Y-%m-%d')
+        todate = request.POST['inputToDate']
+        todate = datetime.strptime(todate, r'%Y-%m-%d')
+        if request.POST['inputOption'] == '1':
+            result = AuditHandler.returnBuses(request, fromdate=fromdate, todate=todate)
+            return result['response']
+        elif request.POST['inputOption'] == '2':
+            result = AuditHandler.returnDrivers(request, fromdate=fromdate, todate=todate)
+            return result['response']
+        elif request.POST['inputOption'] == '3':
+            result = AuditHandler.returnSchedules(request, fromdate=fromdate, todate=todate)
+            return result['response']
+        elif request.POST['inputOption'] == '4':
+            result = AuditHandler.returnTickets(request, fromdate=fromdate, todate=todate)
+            return result['response']
+        elif request.POST['inputOption'] == '5':
+            result = AuditHandler.returnCnics(request, fromdate=fromdate, todate=todate)
+            return result['response']
+        elif request.POST['inputOption'] == '6':
+            result = AuditHandler.returnVouchers(request, fromdate=fromdate, todate=todate)
+            return result['response']
     return render(request, 'import.html')
 
 def createUser(request):
@@ -95,29 +118,40 @@ def bookingdetail(request):
 def schedule(request):
     if request.user.is_anonymous:
         return redirect('/login')
-    schedule = None
-    user = User.objects.get(id=request.user.id)
-    userterminal = UserofTerminal.objects.get(user=user)
-    request.session['uterminal'] = str(userterminal.terminal)
-    schedule = Schedule.objects.filter(status=True)
-    routes = Route.objects.all()
+    schedule, user, userterminal, inner_qs, routes = None, None, None, None, None
+    try:
+        user = User.objects.get(id=request.user.id)
+        userterminal = UserofTerminal.objects.get(user=user)
+        request.session['uterminal'] = str(userterminal.terminal)
+    except Exception as e:
+        messages.warning(request, e)
+    try:
+        inner_qs = Closedby.objects.filter(terminal=userterminal.terminal)
+        route = Route.objects.filter(source=userterminal.terminal)
+        schedule = Schedule.objects.filter(status=True).exclude(id__in=inner_qs)
+        routes = Route.objects.all()
+    except Exception as e:
+        messages.warning(request, e)
     if request.method == "POST":
-        date = request.POST['inputDate']
-        time = request.POST['inputTime']
-        if date:
-            dt = None
-            if time:
-                dt = datetime.combine(datetime.strptime(date, r'%Y-%m-%d'), datetime.time(datetime.strptime(time, r'%H:%M')))
+        try:
+            date = request.POST['inputDate']
+            time = request.POST['inputTime']
+            if date:
+                dt = None
+                if time:
+                    dt = datetime.combine(datetime.strptime(date, r'%Y-%m-%d'), datetime.time(datetime.strptime(time, r'%H:%M')))
+                else:
+                    dt = datetime.strptime(date, r'%Y-%m-%d')
+                if request.POST['inputRoute']:
+                    route = Route.objects.get(id=request.POST['inputRoute'])
+                    rtb = RouteAssignedToBus.objects.get(route=route)
+                    schedule = Schedule.objects.filter(route_assg_bus = rtb, departure__gte = dt, status=True, source=userterminal.terminal).exclude(id__in=inner_qs)
+                else:
+                    schedule = Schedule.objects.filter(departure__gte = dt, status=True, source=userterminal.terminal).exclude(id__in=inner_qs)
             else:
-                dt = datetime.strptime(date, r'%Y-%m-%d')
-            if request.POST['inputRoute']:
-                route = Route.objects.get(id=request.POST['inputRoute'])
-                rtb = RouteAssignedToBus.objects.get(route=route)
-                schedule = Schedule.objects.filter(route_assg_bus = rtb, departure__gte = dt, status=True)
-            else:
-                schedule = Schedule.objects.filter(departure__gte = dt, status=True)
-        else:
-            messages.warning(request, "Please choose a date first!")
+                messages.warning(request, "Please choose a date first!")
+        except Exception as e:
+            messages.warning(request, e)
     return render(request, 'index.html', {'schedule': schedule, 'uterminal': userterminal, 'routes': routes})
 
 def booking(request, schedule_id):
@@ -213,28 +247,59 @@ def fares(request):
 def close(request, schedule_id):
     if request.user.is_anonymous:
         return redirect('/login')
-    schedule = Schedule.objects.get(id=schedule_id)
-    tickets = Tickets.objects.filter(schedule=schedule)
-    route_to_bus = RouteAssignedToBus.objects.get(id=schedule.route_assg_bus.id)
+    sc = Schedule.objects.get(id=schedule_id)
+    user = request.user
+    uterminal = UserofTerminal.objects.get(user=user)
+    tickets = Tickets.objects.filter(schedule=sc, source=uterminal.terminal)
+    route_to_bus = RouteAssignedToBus.objects.get(id=sc.route_assg_bus.id)
+    route = route_to_bus.route
+    mdpts = Midpoint.objects.filter(route=route)
+    validuser = False
+    if route.source.id == uterminal.terminal.id:
+        validuser = True
+    for i in mdpts:
+        if uterminal.terminal.id == i.terminal:
+            validuser = True
     fare = 0
-    for i in tickets:
-        fare += i.fare.fare
-    tickets = tickets.count()
-    if request.method == "POST":
+    if request.method == "POST" and validuser and 'close-sc' in request.POST:
         data = request.POST
         try:
-            schedule = Schedule.objects.get(id=schedule_id)
-            schedule.status = False
-            schedule.save()
             user = request.user
             uterminal = UserofTerminal.objects.get(user=user)
-            voucher = Voucher(terminal=uterminal.terminal, schedule= schedule, issuedby= user, voucher= data['inputVoucher'], 
+            sc = Schedule.objects.get(id=schedule_id)
+            closedby = Closedby(schedule= sc, terminal=uterminal.terminal)
+            closedby.save()
+            tickets = Tickets.objects.filter(schedule= sc, source=uterminal.terminal)
+            for i in tickets:
+                tk_audit = TicketsAudit(voucher=i.voucher, schedule = sc, source = i.source, destination = i.destination, fare = i.fare.fare, seat_no = i.seat_no, bookedby = i.bookedby, gender = i.gender,
+                                        status = i.status, type = i.type, issuedby = i.issuedby, discount = i.discount)
+                tk_audit.save()
+            voucher = Voucher(terminal=uterminal.terminal, schedule= sc, issuedby= user, voucher= data['inputVoucher'], 
                               refreshment=data['inputRefreshment'], washing=data['inputWashing'], parking=data['inputParking'], toll=data['inputToll'])
             voucher.save()
             messages.success(request, 'Booking Closed Successfully!')
         except Exception as e:
             messages.warning(request, e)
-    return render(request, 'close.html', {'schedule':schedule, 'tickets':tickets, 'route_bus': route_to_bus, 'fare': fare})
+    elif not validuser and 'close-sc' in request.POST:
+        messages.warning(request, 'You cannot close this schedule!')
+        return schedule(request)
+    elif 'quit-schedule' in request.POST:
+        print(True)
+        try:
+            sc.status = False
+            sc.save()
+            messages.success(request, "Schedule removed successfully!")
+            return redirect('schedule')
+        except Exception as e:
+            messages.warning(request, e)
+    seats = []
+    for i in tickets:
+        fare += i.fare.fare
+        seats.append(i.seat_no)
+    tickets = tickets.count()
+    seats = ','.join(str(seat) for seat in seats)
+    print(seats, type(seats))
+    return render(request, 'close.html', {'schedule':sc, 'tickets':tickets, 'route_bus': route_to_bus, 'fare': fare, 'seats': seats})
 
 def addtime(request, schedule_id):
     if request.user.is_anonymous:

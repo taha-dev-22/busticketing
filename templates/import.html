@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title%}Cancel{%endblock title%}
+{% block title%}Import{%endblock title%}
 {% block username %}{{ request.user.username }}{% endblock username %}
 {% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
 {% load myfilters %}
@@ -10,6 +10,41 @@
     <hr>
 </div>
 <div class="container">
-
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+    <form method="post" name="import" action="">
+        {% csrf_token %}
+        <div class="mb-3 row">
+            <label for="inputFromDate" class="col-sm-1 col-form-label">FROM</label>
+            <div class="col-sm-3">
+              <input type="date" class="form-control" id="inputFromDate" name="inputFromDate" required>
+            </div>
+            <label for="inputToDate" class="col-sm-1 col-form-label text-end">TO</label>
+            <div class="col-sm-3">
+              <input type="date" class="form-control" id="inputToDate" name="inputToDate" required>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="inputOption" class="col-sm-1 col-form-label">DATA</label>
+            <div class="col-sm-4">
+              <select name="inputOption" class="form-control" id="inputOption" required>
+                   <option value="1">BUSES</option>
+                   <option value="2">DRIVERS</option>
+                   <option value="3">SCHEDULES</option>
+                   <option value="4">TICKETS</option>
+                   <option value="5">CNIC</option>
+                   <option value="6">VOUCHERS</option>
+              </select>
+            </div>
+        </div>
+        {% load static %}
+          <button type="submit" class="btn btn-success btn-md my-2">Download <img style="width:12px; height: 12px;margin-top:-2px;" src="{% static 'images/down_arrow.png' %}"></button>
+    </form>
 </div>
 {%endblock body%}

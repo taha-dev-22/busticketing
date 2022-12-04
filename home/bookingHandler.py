@@ -11,6 +11,7 @@ class BookingHandler():
             try:
                 data = request.POST
                 passenger = Passenger.objects.filter(cnic = data['inputCnic'])
+                faresRoute = Fares.objects.get(id=int(data['inputRoute']))
                 ps = None
                 if passenger:
                     passenger.update(phone = data['inputContact'])
@@ -23,16 +24,19 @@ class BookingHandler():
                 genders = [int(i) for i in data['inputGenders'].split(',')]
                 fare = Fares.objects.get(id=int(data['inputRoute']))
                 for i in range(len(seats)):
-                    tk = Tickets(voucher = data['inputVoucher'], schedule = schedule, seat_no = seats[i], fare = fare, bookedby = ps, gender = genders[i], status = 1, type = 1, issuedby = request.user)
+                    tk = Tickets(voucher = data['inputVoucher'], schedule = schedule, discount = data['inputDiscount'], source = faresRoute.source, destination = faresRoute.destination, seat_no = seats[i], fare = fare, bookedby = ps, gender = genders[i], status = 1, type = 1, issuedby = request.user)
                     tk.save()
                 messages.success(request, 'Tickets has been booked successfully!')
             except Exception as e:
                 messages.warning(request, e)
         tickets = Tickets.objects.filter(schedule=schedule_id)
-        fares = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus)
+        uterminal = UserofTerminal.objects.get(user=request.user)
+        fares = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus, source=uterminal.terminal)
         seating = {}
         for i in tickets.values():
             fare = Fares.objects.get(id=i['fare_id'])
+            if fare.destination.id == uterminal.terminal.id:
+                continue
             bookedincity = fare.source.city
             destcity = fare.destination.city
             gender = i['gender']

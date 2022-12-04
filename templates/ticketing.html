@@ -6,7 +6,10 @@
 {%block body%}
 {% load myfilters %}
 <div class="container">
-    <h1>TICKETING</h1>
+    <div class="row">
+        <div class="col-sm-6"><h1>TICKETING</h1></div>
+        <div class="col-sm-6 text-end"><a href="{% url 'close' schedule_id=schedule.id %}"><button class="btn btn-danger btn-md my-2">Close Booking</button></a></div>
+    </div>
     <hr>
     <div class="row my-3">
         <div class="col-4">
@@ -52,12 +55,12 @@
             <form method="post" name="ticketing" onsubmit="return validateForm(this.id)" id="ticketing-form" action="{% url 'ticketing' schedule_id=schedule.id %}">
                 {% csrf_token %}
                 <div class="mb-3 row">
-                    <label for="inputRoute" class="col-sm-3 col-form-label">Source - Destination</label>
+                    <label for="inputRoute" class="col-sm-3 col-form-label">Destination</label>
                     <div class="col-sm-9">
-                      <select name="inputRoute" onchange="setFair(this.value);" class="form-control" id="inputRoute">
+                      <select name="inputRoute" onchange="setFair(this.value);" class="form-control" id="inputRoute" required>
                         {% if fares %}
                            {% for fare in fares %}
-                             <option value="{{fare.id}}">{{fare.source.city}} - {{fare.destination.city}}</option>
+                             <option value="{{fare.id}}">{{fare.destination.city}}</option>
                            {% endfor %}
                         {% endif %}
                       </select>
@@ -96,6 +99,12 @@
                     </div>
                 </div>
                 <div class="mb-3 row">
+                    <label for="inputDiscount" class="col-sm-3 col-form-label">Discount:</label>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="inputDiscount" name="inputDiscount" min=0 placeholder="Enter in PKR" required>
+                    </div>
+                </div>
+                <div class="mb-3 row">
                     <label for="inputFare" class="col-sm-3 col-form-label">Fare:</label>
                     <div class="col-sm-3">
                         <input readonly type="text" class="form-control" id="inputFare" value="{{fare}}">
@@ -128,13 +137,42 @@
             <div class="ticket hidden-element" id="ticket">
                 <div class="text-center">
                 <h1 style="text-align:center;">MBM</h1>
-                <p style="text-align:center;"><strong>Ticket Id:</strong> <span id="bill-voucher"></span></p>
-                <p id="bill-route" style="text-align:center;"></p>
-                <p id="bill-departure" style="text-align:center;"><strong>Departure:</strong> {{schedule.departure.date}} - {{schedule.departure.time}}</p>
-                <p id="bill-bus" style="text-align:center;"><strong>Bus:</strong> {{schedule.route_assg_bus.bus}}</p>
-                <p style="text-align:center;"><strong>Issued By:</strong> {{ request.user.username }}</p>
                 </div>
-                <table style="width:100%;">
+                <table style="width:100%; margin-top:5px;">
+                    <tr>
+                        <th style="border:1px solid #000;text-align:center;width:50%;">Ticket Id</th>
+                        <th style="border:1px solid #000;text-align:center;width:50%;" id="bill-voucher"></th>
+                    </tr>
+                    <tr>
+                        <th style="border:1px solid #000;text-align:center;width:50%;">Issuedby</th>
+                        <th style="border:1px solid #000;text-align:center;width:50%;">{{ request.user.get_full_name}}</th>
+                    </tr>
+                </table>
+                <table style="width:100%; margin-top:5px;">
+                    <tr>
+                        <th style="text-align:left;" colspan="2">Passenger Info</th>
+                    </tr>
+                    <tr style="margin-top:10px;">
+                        <td style="border:1px solid #000;text-align:center;">Name</td>
+                        <td id="bill-pname" style="border:1px solid #000;text-align:center;"></td>
+                    </tr>
+                </table>
+                <table style="width:100%; margin-top:5px;">
+                    <tr>
+                        <th style="text-align:left;" colspan="2">Departure Info</th>
+                    </tr>
+                    <tr style="margin-top:10px;">
+                        <th style="border:1px solid #000;text-align:center;">Route</th>
+                        <th style="border:1px solid #000;text-align:center;">Departure</th>
+                        <th style="border:1px solid #000;text-align:center;">Bus</th>
+                    </tr>
+                    <tr>
+                        <td id="bill-route" style="border:1px solid #000;text-align:center;"></td>
+                        <td id="bill-departure" style="border:1px solid #000;text-align:center;">{{schedule.departure.date}} - {{schedule.departure.time}}</td>
+                        <td id="bill-bus" style="border:1px solid #000;text-align:center;">{{schedule.route_assg_bus.bus}}</td>
+                    </tr>
+                </table>
+                <table style="width:100%; margin-top:10px;">
                     <thead>
                         <tr>
                             <th style="border:1px solid #000;text-align:center;" class="seat">Seat</th>
@@ -157,6 +195,23 @@
                             <td style="border:1px solid #000;text-align:center;" id="totalprice">00</td>
                         </tr>
                     </tbody>
+                </table>
+                <table style="width:100%; margin-top:5px;">
+                    <tr>
+                        <th style="text-align:left;" colspan="2">Discount Info</th>
+                    </tr>
+                    <tr style="margin-top:10px;">
+                        <th style="border:1px solid #000;text-align:center;">Amount per seat</th>
+                        <th style="border:1px solid #000;text-align:center;">Total Discount</th>
+                    </tr>
+                    <tr>
+                        <td id="bill-disc" style="border:1px solid #000;text-align:center;"></td>
+                        <td id="bill-discTotal" style="border:1px solid #000;text-align:center;">{{schedule.departure.date}} - {{schedule.departure.time}}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000;text-align:center;">Total Payable Amount</td>
+                        <td id="bill-TotalPayable" style="border:1px solid #000;text-align:center;"></td>
+                    </tr>
                 </table>
             </div>
         </div>

@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from home.models import AssignedBusesToDriver, Driver, Bus, Fares, Midpoint, Route, Terminal, RouteAssignedToBus, Schedule
 from django.contrib import messages
 from datetime import datetime, timedelta

@@ -1,4 +1,3 @@
-from turtle import update
 from django.contrib import messages
 from django.contrib.auth.models import User
 from home.models import UserData, Terminal, UserofTerminal, Terminal
@@ -19,7 +18,6 @@ class UserHandler():
             except Exception as e:
                 messages.warning(request, e)
             if user or udata:
-                print(data)
                 messages.warning(request, 'User Already Exists!')
             else:
                 try:
