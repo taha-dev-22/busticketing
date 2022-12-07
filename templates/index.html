@@ -20,13 +20,13 @@
     <form method="post" name="schedule-form" class="mx-auto" id="schedule-form" action="/schedule">
       {% csrf_token %}
       <div class="mb-3 row">
-        <label for="inputRoute" class="col-sm-1 col-form-label">Route</label>
+        <label for="inputRoute" class="col-sm-1 col-form-label">Destination</label>
         <div class="col-sm-3">
           <select name="inputRoute" class="form-control" id="inputRoute">
-            <option value="" selected>Select Route</option>
+            <option value="" selected>Select Destination</option>
             {% if routes %}
             {% for route in routes %}
-            <option value="{{route.id}}">{{route}}</option>
+            <option value="{{route.id}}">{{route.destination.city}}</option>
             {% endfor %}
             {% endif %}
           </select>

@@ -35,9 +35,9 @@
             <label for="inputPasId" class="col-sm-3 col-form-label text-end">Schedule: </label>
             <div class="col-sm-6">
                 <select class="form-select" name="inputSchedule" aria-label="Default select example">
-                    {% if schedules %}
-                    {% for i in schedules %}
-                    <option value="{{i.id}}">{{i}}</option>
+                    {% if vouchers %}
+                    {% for i in vouchers %}
+                    <option value="{{i.id}}">{{i.voucher}} - {{i.destination.city}} - {{i.schedule.departure}}</option>
                     {% endfor %}
                     {% endif %}
                   </select>

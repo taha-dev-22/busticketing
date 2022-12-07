@@ -113,7 +113,7 @@ def bookingdetail(request):
         return redirect('/login')
     result = BookingHandler.bookingdetail(request)
     return render(result['request'], 'bookingdetail.html', {'uid': result['uid'], 'schedules': result['schedules'], 
-                'tickets': result['tickets'], 'schedule': result['schedule'], 'billdata': result['billdata']})
+                'tickets': result['tickets'], 'vouchers': result['vouchers'], 'billdata': result['billdata']})
 
 def schedule(request):
     if request.user.is_anonymous:
@@ -145,9 +145,9 @@ def schedule(request):
                 if request.POST['inputRoute']:
                     route = Route.objects.get(id=request.POST['inputRoute'])
                     rtb = RouteAssignedToBus.objects.get(route=route)
-                    schedule = Schedule.objects.filter(route_assg_bus = rtb, departure__gte = dt, status=True, source=userterminal.terminal).exclude(id__in=inner_qs)
+                    schedule = Schedule.objects.filter(route_assg_bus = rtb, departure__gte = dt, status=True).exclude(id__in=inner_qs)
                 else:
-                    schedule = Schedule.objects.filter(departure__gte = dt, status=True, source=userterminal.terminal).exclude(id__in=inner_qs)
+                    schedule = Schedule.objects.filter(departure__gte = dt, status=True).exclude(id__in=inner_qs)
             else:
                 messages.warning(request, "Please choose a date first!")
         except Exception as e:

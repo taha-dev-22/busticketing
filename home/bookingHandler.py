@@ -111,6 +111,7 @@ class BookingHandler():
         seats = []
         genders = []
         schedule = None
+        vouchers = None
         tickets = None
         uid = None
         if request.method == "POST":
@@ -118,12 +119,10 @@ class BookingHandler():
                 try:
                     passenger = Passenger.objects.get(cnic=request.POST['inputPasId'])
                     uid = passenger.id
-                    schedule = Tickets.objects.filter(bookedby = passenger, status= 1).values('schedule').distinct()
-                    for i in schedule:
-                        schedules.append(Schedule.objects.get(id=i['schedule']))
-                    if not schedule:
-                        messages.warning(request, 'No Schedule found against this cnic!')
-                        schedule = None
+                    vouchers = Tickets.objects.filter(bookedby = passenger, status= 1).distinct()
+                    if not vouchers:
+                        messages.warning(request, 'No Tickets found against this cnic!')
+                        vouchers = None
                         uid = None
                 except Exception as e:
                     messages.warning(request, 'Passenger not found!')
@@ -131,10 +130,9 @@ class BookingHandler():
                 try:
                     uid = request.POST['inputUid']
                     passenger = Passenger.objects.get(id=request.POST['inputUid'])
-                    schedule = Schedule.objects.get(id=request.POST['inputSchedule'])
-                    rab = RouteAssignedToBus.objects.get(id = schedule.route_assg_bus.id)
-                    fare = Fares.objects.get(route_asg_to_bus=rab)
-                    tickets = Tickets.objects.filter(bookedby=passenger, schedule= schedule, status=1)
+                    tickets = Tickets.objects.get(id=request.POST['inputSchedule'])
+                    fare = tickets.fare.fare
+                    tickets = Tickets.objects.filter(voucher=tickets.voucher)
                     qty = len(tickets)
                     for i in tickets:
                         seat_gender[i.seat_no] = 'M' if i.gender else 'F'
@@ -148,8 +146,8 @@ class BookingHandler():
                     billData['seats'] = seats
                     billData['genders'] = genders
                     billData['qty'] = qty
-                    billData['fare'] = fare.fare
-                    billData['total'] = billData['fare'] * qty
+                    billData['fare'] = fare
+                    billData['total'] = fare * qty
                 except Exception as e:
                     messages.warning(request, e)
             elif 'Purchase-seats' in request.POST:
@@ -164,4 +162,4 @@ class BookingHandler():
                     messages.success(request, 'Seats Purchased Successfully!')
                 except Exception as e:
                     messages.warning(request, e)
-        return {'request': request, 'uid': uid, 'schedules': schedules, 'tickets': tickets, 'schedule': schedule, 'billdata': billData}
+        return {'request': request, 'uid': uid, 'schedules': schedules, 'tickets': tickets, 'vouchers': vouchers, 'billdata': billData}

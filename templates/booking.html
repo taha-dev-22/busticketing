@@ -6,10 +6,10 @@
 {%block body%}
 {% load myfilters %}
 <div class="container">
-    <h1>BOOKING</h1>
-    <hr>
-    <div class="row my-3">
-        <div class="col-4">
+    <h2>BOOKING</h2>
+    <hr style="margin:5px 0;">
+    <div class="row my-1">
+        <div class="col-6">
             {% if messages %}
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -44,38 +44,38 @@
                     <td>{{schedule.route_assg_bus.bus.seating_capacity}}</td>
                 </tr>
             </table>
-            <hr>
+            <hr style="margin:5px 0;">
             <span class="hidden-element" id="fare">{{fares|get_fare}}</span>
             <span class="hidden-element" id="scid">{{ schedule.id }}</span>
             <span id="seats"></span>
             <span id="genders"></span>
             <form method="post" name="booking" onsubmit="return validateForm(this.id)" id="booking-form" action="{% url 'booking' schedule_id=schedule.id %}">
                 {% csrf_token %}
-                <div class="mb-3 row">
-                    <label for="inputRoute" class="col-sm-3 col-form-label">Source - Destination</label>
+                <div class="mb-1 row">
+                    <label for="inputRoute" class="col-sm-3 col-form-label">Destination</label>
                     <div class="col-sm-9">
                       <select name="inputRoute" onchange="setFair(this.value);" class="form-control" id="inputRoute" required>
                         {% if fares %}
                            {% for fare in fares %}
-                             <option value="{{fare.id}}">{{fare.source.city}} - {{fare.destination.city}}</option>
+                             <option value="{{fare.id}}">{{fare.destination.city}}</option>
                            {% endfor %}
                         {% endif %}
                       </select>
                     </div>
                   </div>
-                <div class="mb-3 row">
+                <div class="mb-1 row">
                     <label for="inputPasName" class="col-sm-3 col-form-label">Passenger Name: </label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="inputPasName" name="inputPasName" required>
                     </div>
                 </div>
-                <div class="mb-3 row">
+                <div class="mb-1 row">
                     <label for="inputContact" class="col-sm-3 col-form-label">Contact #:</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="inputContact" name="inputContact" required>
                     </div>
                 </div>
-                <div class="mb-3 row">
+                <div class="mb-1 row">
                     <label for="inputCnic" class="col-sm-3 col-form-label">Cnic:</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="inputCnic" name="inputCnic" required>
@@ -89,19 +89,19 @@
                 <input type="text" class="form-control hidden-element" id="inputVoucher" value="" name="inputVoucher">
                 <!-- Voucher input -->
 
-                <div class="mb-3 row">
+                <div class="mb-1 row">
                     <label for="inputSeats" class="col-sm-3 col-form-label">Seats:</label>
                     <div class="col-sm-9">
                         <input readonly type="text" class="form-control" id="inputSeats" name="inputSeats" required>
                     </div>
                 </div>
-                <div class="mb-3 row">
+                <div class="mb-1 row">
                     <label for="inputDiscount" class="col-sm-3 col-form-label">Discount:</label>
                     <div class="col-sm-9">
                         <input type="number" class="form-control" id="inputDiscount" name="inputDiscount" min=0 placeholder="Enter in PKR" required>
                     </div>
                 </div>
-                <div class="mb-3 row">
+                <div class="mb-1 row">
                     <label for="inputFare" class="col-sm-3 col-form-label">Fare:</label>
                     <div class="col-sm-3">
                         <input readonly type="text" class="form-control" id="inputFare" value="">
@@ -113,7 +113,7 @@
                         <input readonly type="text" class="form-control" id="inputTotal">
                     </div>
                 </div>
-                <div class="mb-3 row">
+                <div class="mb-1 row">
                     <label for="inputSeats" class="col-sm-3 col-form-label">Gender:</label>
                     <div class="col-sm-3 my-auto">
                         <div class="form-check form-check-inline">
@@ -128,11 +128,11 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" name="bookingbtn" class="btn btn-dark btn-lg">Book Now!</button>
-                <a href="{% url 'bookingbyschedule' schedule_id=schedule.id %}"><button type="button" name="cancelbooking" class="btn btn-dark btn-lg">Cancel Booking</button></a>
+                <button type="submit" name="bookingbtn" class="btn btn-dark btn-md">Book Now!</button>
+                <a href="{% url 'bookingbyschedule' schedule_id=schedule.id %}"><button type="button" name="cancelbooking" class="btn btn-dark btn-md">Cancel Booking</button></a>
             </form>
         </div>
-        <div class="col-8 seating-structure">
+        <div class="col-6 seating-structure">
             <div class="row">
                 <div class="col-6 reservation_head">
                     <h4>Seats Reserved</h4>
