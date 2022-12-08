@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher, Route, Closedby, Midpoint, TicketsAudit
+from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher, Route, Closedby, Midpoint, TicketsAudit, Bus
 from home.auditHandler import AuditHandler
 from django.contrib.auth.models import User
 from home.bookingHandler import BookingHandler
@@ -10,6 +10,7 @@ from django.contrib import messages
 from datetime import timedelta, datetime
 from django.db.models import Q
 from django.contrib.auth import logout, authenticate, login
+import json
 # Create your views here.
 
 def importData(request):
@@ -90,6 +91,46 @@ def registerSchedule(request):
     result = RegistrationHandler.registerSchedule(request)
     return render(result['request'], 'schedule.html', {'routeasgbus':result['routeasgbus']})
 
+def midtimes(request):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    schedule = None
+    try:
+        schedule = Schedule.objects.all().distinct()
+    except Exception as e:
+        messages.warning(request, e)
+    return render(request, 'midtimes.html', {'schedule': schedule})
+
+def addtimetosc(request, schedule_id):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    midpoints = None
+    schedule = None
+    try:
+        schedule = Schedule.objects.get(id=schedule_id)
+        route = schedule.route_assg_bus.route
+        midpoints = Midpoint.objects.filter(route=route)
+    except Exception as e:
+        messages.warning(request, e)
+    if request.method == "POST":
+        try:
+            midtimes = {}
+            data = dict(request.POST)
+            for i in range(len(data['inputTerminalId'])):
+                midtimes[str(data['inputTerminalId'][i])] = data['inputTime'][i]
+            schedule.mid_dept = json.dumps(midtimes)
+            schedule.save()
+            if 'inputCheck' in data:
+                schedules = Schedule.objects.filter(route_assg_bus = schedule.route_assg_bus)
+                for i in schedules:
+                    if i.departure.time() == schedule.departure.time():
+                        i.mid_dept = json.dumps(midtimes)
+                        i.save()
+            messages.success(request, 'Timings added successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'addtimetosc.html', {'midpoints': midpoints, 'schedule': schedule})
+
 def loginUser(request):
     if request.method == "POST":
         username = request.POST.get('inputUsername')
@@ -128,7 +169,7 @@ def schedule(request):
     try:
         inner_qs = Closedby.objects.filter(terminal=userterminal.terminal)
         route = Route.objects.filter(source=userterminal.terminal)
-        schedule = Schedule.objects.filter(status=True).exclude(id__in=inner_qs)
+        schedule = Schedule.objects.filter(status=True).exclude(id__in=inner_qs).order_by('departure')
         routes = Route.objects.all()
     except Exception as e:
         messages.warning(request, e)
@@ -145,9 +186,9 @@ def schedule(request):
                 if request.POST['inputRoute']:
                     route = Route.objects.get(id=request.POST['inputRoute'])
                     rtb = RouteAssignedToBus.objects.get(route=route)
-                    schedule = Schedule.objects.filter(route_assg_bus = rtb, departure__gte = dt, status=True).exclude(id__in=inner_qs)
+                    schedule = Schedule.objects.filter(route_assg_bus = rtb, departure__gte = dt, status=True).exclude(id__in=inner_qs).order_by('departure')
                 else:
-                    schedule = Schedule.objects.filter(departure__gte = dt, status=True).exclude(id__in=inner_qs)
+                    schedule = Schedule.objects.filter(departure__gte = dt, status=True).exclude(id__in=inner_qs).order_by('departure')
             else:
                 messages.warning(request, "Please choose a date first!")
         except Exception as e:
@@ -158,12 +199,16 @@ def booking(request, schedule_id):
     if request.user.is_anonymous:
         return redirect('/login')
     response = BookingHandler.returnBooking(request, schedule_id)
+    if not response['result']:
+        return schedule(response['request'])
     return render(response['request'], 'booking.html', response['result'])
 
 def ticketing(request, schedule_id):
     if request.user.is_anonymous:
         return redirect('/login')
     response = TicketingHandler.returnTicketing(request, schedule_id)
+    if not response['result']:
+        return schedule(response['request'])
     return render(response['request'], 'ticketing.html', response['result'])
 
 def printBill(request):
@@ -249,6 +294,7 @@ def close(request, schedule_id):
         return redirect('/login')
     sc = Schedule.objects.get(id=schedule_id)
     user = request.user
+    deptime = None
     uterminal = UserofTerminal.objects.get(user=user)
     tickets = Tickets.objects.filter(schedule=sc, source=uterminal.terminal)
     route_to_bus = RouteAssignedToBus.objects.get(id=sc.route_assg_bus.id)
@@ -257,6 +303,8 @@ def close(request, schedule_id):
     validuser = False
     if route.source.id == uterminal.terminal.id:
         validuser = True
+    else:
+        deptime = str(datetime.now().date()) + ' , ' + str(datetime.now().time().strftime('%I:%M:%S %p'))
     for i in mdpts:
         if uterminal.terminal.id == i.terminal:
             validuser = True
@@ -299,7 +347,7 @@ def close(request, schedule_id):
     tickets = tickets.count()
     seats = ','.join(str(seat) for seat in seats)
     print(seats, type(seats))
-    return render(request, 'close.html', {'schedule':sc, 'tickets':tickets, 'route_bus': route_to_bus, 'fare': fare, 'seats': seats})
+    return render(request, 'close.html', {'schedule':sc, 'tickets':tickets, 'route_bus': route_to_bus, 'deptime': deptime, 'fare': fare, 'seats': seats})
 
 def addtime(request, schedule_id):
     if request.user.is_anonymous:
@@ -312,3 +360,83 @@ def addtime(request, schedule_id):
         schedule.save()
         return redirect('schedule')
     return render(request, 'addtime.html')
+
+def modifybus(request, bus_id):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    bus = None
+    try:
+        bus = Bus.objects.get(id=bus_id)
+    except Exception as e:
+        messages.warning(request, e)
+    if request.method == "POST":
+        try:
+            data = request.POST
+            bus.bus_model=data['inputModel']
+            bus.bus_number=data['inputNumber']
+            bus.seating_capacity=data['inputSeating']
+            bus.service_type=data['inputService']
+            bus.save()
+            bus = Bus.objects.get(id=bus_id)
+            messages.success(request, 'Bus updated successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'modifybus.html', {'bus': bus})
+
+def viewbuses(request, bus_id = None):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    Buses = None
+    try:
+        Buses = Bus.objects.all()
+    except Exception as e:
+        messages.warning(request, e)
+    if bus_id is not None:
+        bus = None
+        try:
+            bus = Bus.objects.get(id=bus_id)
+            bus.delete()
+            messages.success(request, 'Bus deleted successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'buses.html', {'Buses': Buses})
+
+def modifydriver(request, driver_id):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    driver = None
+    try:
+        driver = Driver.objects.get(id=driver_id)
+    except Exception as e:
+        messages.warning(request, e)
+    if request.method == "POST":
+        try:
+            data = request.POST
+            driver.name=data['inputName']
+            driver.cnic=data['inputCnic']
+            driver.phone=data['inputPhone']
+            driver.address=data['inputAddress']
+            driver.save()
+            driver = Driver.objects.get(id=driver_id)
+            messages.success(request, 'Driver updated successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'modifydriver.html', {'driver': driver})
+
+def viewdrivers(request, driver_id=None):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    Drivers = None
+    try:
+        Drivers = Driver.objects.all()
+    except Exception as e:
+        messages.warning(request, e)
+    if driver_id is not None:
+        driver = None
+        try:
+            driver = Driver.objects.get(id=driver_id)
+            driver.delete()
+            messages.success(request, 'Driver deleted successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'drivers.html', {'Drivers': Drivers})

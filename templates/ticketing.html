@@ -28,11 +28,7 @@
                 </tr>
                 <tr>
                     <th>Departure:</th>
-                    <td>{{schedule.departure.date}} - {{schedule.departure.time}}</td>
-                </tr>
-                <tr>
-                    <th>Arrival:</th>
-                    <td>{{schedule.arrival.date}} - {{schedule.arrival.time}}</td>
+                    <td>{{schedule.departure.date}} - {% if deptime %}{{deptime}}{% else %}{{schedule.departure.time}}{% endif %}</td>
                 </tr>
                 <tr>
                     <th>Service:</th>
@@ -168,7 +164,7 @@
                     </tr>
                     <tr>
                         <td id="bill-route" style="border:1px solid #000;text-align:center;"></td>
-                        <td id="bill-departure" style="border:1px solid #000;text-align:center;">{{schedule.departure.date}} - {{schedule.departure.time}}</td>
+                        <td id="bill-departure" style="border:1px solid #000;text-align:center;">{{schedule.departure.date}} - {% if deptime %}{{deptime}}{% else %}{{schedule.departure.time}}{% endif %}</td>
                         <td id="bill-bus" style="border:1px solid #000;text-align:center;">{{schedule.route_assg_bus.bus}}</td>
                     </tr>
                 </table>

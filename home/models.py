@@ -202,6 +202,7 @@ class Schedule(models.Model):
     departure = models.DateTimeField()
     arrival = models.DateTimeField()
     route_assg_bus = models.ForeignKey("RouteAssignedToBus", on_delete=models.CASCADE)
+    mid_dept = models.CharField(max_length=500, default=None, null=True)
     status = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
     last_modified = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)

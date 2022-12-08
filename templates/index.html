@@ -26,7 +26,7 @@
             <option value="" selected>Select Destination</option>
             {% if routes %}
             {% for route in routes %}
-            <option value="{{route.id}}">{{route.destination.city}}</option>
+            <option value="{{route.id}}">{{route.destination.city}} Via {{route.via}}</option>
             {% endfor %}
             {% endif %}
           </select>
@@ -55,7 +55,9 @@
       <th>SERVICE TYPE</th>
       <th>BUS NO</th>
       <th>TOTAL SEATS</th>
-      <th>Actions</th>
+      <th>TICKET</th>
+      <th>BOOK</th>
+      <th>Time+</th>
       <th>Close</th>
     </tr>
     {% for sc in schedule %}
@@ -66,10 +68,9 @@
       <td>{{sc.route_assg_bus.bus.service_type}}</td>
       <td>{{sc.route_assg_bus.bus}}</td>
       <td>{{sc.route_assg_bus.bus.seating_capacity}}</td>
-      <td><a href="{% url 'ticketing' schedule_id=sc.id %}" tooltip="ticket"><img src="{% static 'images/purchase.png' %}"></a> <a
-          href="{% url 'booking' schedule_id=sc.id %}" tooltip="book"><img src="{% static 'images/book.png' %}"></a>
-        </a> <a href="{% url 'addtime' schedule_id=sc.id %}" tooltip="Add Time"><img src="{% static 'images/time.png' %}"></a>
-      </td>
+      <td><a href="{% url 'ticketing' schedule_id=sc.id %}" tooltip="ticket"><img src="{% static 'images/purchase.png' %}"></a></td>
+      <td><a href="{% url 'booking' schedule_id=sc.id %}" tooltip="book"><img src="{% static 'images/book.png' %}"></a></td>
+      <td><a href="{% url 'addtime' schedule_id=sc.id %}" tooltip="Add Time"><img src="{% static 'images/time.png' %}"></a></td>
       <td><a href="{% url 'close' schedule_id=sc.id %}"><img src="{% static 'images/lock.png' %}"></a></td>
     </tr>
     {% endfor %}

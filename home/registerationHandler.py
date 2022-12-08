@@ -153,13 +153,23 @@ class RegistrationHandler():
                 data = request.POST
                 bus = Bus.objects.get(id=data['inputBus'])
                 route = Route.objects.get(id=data['inputRoute'])
-                routeasgbus = RouteAssignedToBus.objects.filter(bus=bus, route=route).exists()
-                if not routeasgbus:
-                    routeasgbus = RouteAssignedToBus(bus=bus, route=route)
+                routeasgbus = RouteAssignedToBus.objects.filter(bus=bus).exists()
+                if routeasgbus:
+                    routeasgbus = RouteAssignedToBus.objects.get(bus=bus)
+                    if routeasgbus.route.id == route.id:
+                        messages.warning(request, 'Bus Already Assigned to Route!')
+                    else:
+                        routeasgbus.bus = None
+                        routeasgbus.save()
+                        routeasgbus = RouteAssignedToBus.objects.get(route=route)
+                        routeasgbus.bus = bus
+                        routeasgbus.save()
+                        messages.success(request, 'Route Assigned Successfully!')
+                else:
+                    routeasgbus = RouteAssignedToBus.objects.get(route=route)
+                    routeasgbus.bus = bus
                     routeasgbus.save()
                     messages.success(request, 'Route Assigned Successfully!')
-                else:
-                    messages.warning(request, 'Bus Already Assigned to Route!')
             except Exception as e:
                 messages.warning(request, e)
         try:

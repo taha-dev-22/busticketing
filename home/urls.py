@@ -32,5 +32,13 @@ urlpatterns = [
     path('createuser', views.createUser, name='createuser'),
     path('viewusers', views.viewUsers, name='viewusers'),
     path('bookingdetail', views.bookingdetail, name='bookingdetail'),
-    path('vouchers', views.vouchers, name='vouchers')
+    path('vouchers', views.vouchers, name='vouchers'),
+    path('modifybus/<int:bus_id>', views.modifybus, name='modifybus'),
+    path('modifydriver/<int:driver_id>', views.modifydriver, name='modifydriver'),
+    path('viewbuses', views.viewbuses, name='viewbuses'),
+    path('viewbuses/<int:bus_id>', views.viewbuses, name='viewbuses'),
+    path('viewdrivers', views.viewdrivers, name='viewdrivers'),
+    path('viewdrivers/<int:driver_id>', views.viewdrivers, name='viewdrivers'),
+    path('midtimes', views.midtimes, name='midtimes'),
+    path('addtimetosc/<int:schedule_id>', views.addtimetosc, name='addtimetosc')
 ]

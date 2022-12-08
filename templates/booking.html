@@ -25,11 +25,7 @@
                 </tr>
                 <tr>
                     <th>Departure:</th>
-                    <td>{{schedule.departure.date}} - {{schedule.departure.time}}</td>
-                </tr>
-                <tr>
-                    <th>Arrival:</th>
-                    <td>{{schedule.arrival.date}} - {{schedule.arrival.time}}</td>
+                    <td>{{schedule.departure.date}} - {% if deptime %}{{deptime}}{% else %}{{schedule.departure.time}}{% endif %}</td>
                 </tr>
                 <tr>
                     <th>Service:</th>

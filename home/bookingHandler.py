@@ -2,11 +2,12 @@ from home.models import Schedule, Passenger, Tickets, Fares, UserofTerminal, Rou
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Count
+import json
 
 class BookingHandler():
     @staticmethod
     def returnBooking(request, schedule_id):
-        schedule = Schedule.objects.filter(id=schedule_id)[0]
+        schedule = Schedule.objects.get(id=schedule_id)
         if request.method == "POST":
             try:
                 data = request.POST
@@ -29,21 +30,31 @@ class BookingHandler():
                 messages.success(request, 'Tickets has been booked successfully!')
             except Exception as e:
                 messages.warning(request, e)
-        tickets = Tickets.objects.filter(schedule=schedule_id)
-        uterminal = UserofTerminal.objects.get(user=request.user)
-        fares = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus, source=uterminal.terminal)
-        seating = {}
-        for i in tickets.values():
-            fare = Fares.objects.get(id=i['fare_id'])
-            if fare.destination.id == uterminal.terminal.id:
-                continue
-            bookedincity = fare.source.city
-            destcity = fare.destination.city
-            gender = i['gender']
-            status = i['status']
-            seating[i['seat_no']] =  {'gender':gender, 'status':status, 'bookedincity':bookedincity, 'destcity': destcity}
-        result = {'schedule': schedule, 'seating': seating, 'range': range(schedule.route_assg_bus.bus.seating_capacity), 'fares': fares}
-        dt = {'request': request, 'result': result}
+        dt = None
+        try:
+            tickets = Tickets.objects.filter(schedule=schedule_id)
+            uterminal = UserofTerminal.objects.get(user=request.user)
+            fares = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus, source=uterminal.terminal)
+            seating = {}
+            for i in tickets.values():
+                fare = Fares.objects.get(id=i['fare_id'])
+                if fare.destination.id == uterminal.terminal.id:
+                    continue
+                bookedincity = fare.source.city
+                destcity = fare.destination.city
+                gender = i['gender']
+                status = i['status']
+                seating[i['seat_no']] =  {'gender':gender, 'status':status, 'bookedincity':bookedincity, 'destcity': destcity}
+            deptime = None
+            if schedule.mid_dept:
+                mpoints = json.loads(schedule.mid_dept)
+                if str(uterminal.terminal.id) in mpoints:
+                    deptime = mpoints[str(uterminal.terminal.id)]
+            result = {'schedule': schedule, 'deptime': deptime, 'seating': seating, 'range': range(schedule.route_assg_bus.bus.seating_capacity), 'fares': fares}
+            dt = {'request': request, 'result': result}
+        except Exception as e:
+            dt = {'request': request, 'result': None}
+            messages.warning(request, e)
         return dt
     
     @staticmethod

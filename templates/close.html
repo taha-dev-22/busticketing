@@ -88,7 +88,11 @@
             </tr>
             <tr>
                 <td style="border:1px solid #000;text-align:center;">{{schedule.route_assg_bus.route}}</td>
+                {% if not deptime %}
                 <td style="border:1px solid #000;text-align:center;">{{schedule.departure.date}} - {{schedule.departure.time}}</td>
+                {% else %}
+                <td style="border:1px solid #000;text-align:center;">{{deptime}}</td>
+                {% endif %}
                 <td style="border:1px solid #000;text-align:center;">{{schedule.route_assg_bus.bus}}</td>
             </tr>
         </table>

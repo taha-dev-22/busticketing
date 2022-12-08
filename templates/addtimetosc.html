@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Time{% endblock title %}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+{% load static %}
+<div class="container my-2">
+  <h1>Midpoint Times</h1>
+  <hr>
+  <div class="container">
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+  {% endif %}
+</div>
+{% if schedule %}
+<h3>{{schedule}}</h3>
+{% endif %}
+{% if midpoints %}
+<form method="post" name="register" action="">
+    {% csrf_token %}
+    {% for md in midpoints %}
+    <div class="my-5 row">
+          <input type="text" class="form-control hidden-element" id="inputTerminalId" name="inputTerminalId" value="{{md.terminal.id}}" readonly required>
+          <div class="col-sm-2">
+          <input type="text" class="form-control" id="inputTerminal" name="inputTerminal" value="{{md.terminal}}" readonly required>
+          </div>
+          <div class="col-sm-2">
+          <input type="time" class="form-control" id="inputTime" name="inputTime" required>
+          </div>
+    </div>
+    {% endfor %}
+    <div class="input-group mb-3">
+          <input class="form-check-input" type="checkbox" name="inputCheck" aria-label="Checkbox for following text input"> 
+        <div class="col-sm-6 mx-2 text-start">
+        <label for="inputCheck" class="form-label">Add time to each schedule with same route.</label>
+        </div>
+      </div>
+    <button type="submit" class="btn btn-dark btn-md">Register</button>
+</form>
+{% else %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Sorry No Midpoints registered on this Route</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+</div>
+{%endblock body%}
