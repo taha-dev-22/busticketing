@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title%}Route{%endblock title%}
+{% block username %}{{ request.user.username }}{% endblock username %}
+{% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
+{%block body%}
+<div class="container">
+    <h1>REGISTER Route</h1>
+    <hr>
+</div>
+<div class="container my-3">
+    {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+    <form method="post" name="register" action="">
+        {% csrf_token %}
+        <div class="mb-3 row">
+            <label for="inputSource" class="col-sm-2 col-form-label">Source</label>
+            <div class="col-sm-4">
+              <select name="inputSource" class="form-control" id="inputSource" required>
+                {% if terminals %}
+                   {% for terminal in terminals%}
+                   <option value="{{terminal.id}}" {% if terminal == route.source %}selected{% endif %}>{{terminal}}</option>
+                   {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputVia" class="col-sm-2 col-form-label">Via</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" id="inputVia" name="inputVia" placeholder="Via" min="2" max="100" value="{{route.via}}" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputDestination" class="col-sm-2 col-form-label">Destination</label>
+            <div class="col-sm-4">
+              <select name="inputDestination" class="form-control" id="inputDestination" required>
+                {% if terminals %}
+                   {% for terminal in terminals %}
+                     <option value="{{terminal.id}}" {% if terminal == route.destination %}selected{% endif %}>{{terminal}}</option>
+                   {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <button type="submit" name="route" class="btn btn-dark btn-md">Register</button>
+    </form>
+</div>
+
+{%endblock body%}

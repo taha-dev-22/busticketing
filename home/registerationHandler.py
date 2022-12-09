@@ -156,19 +156,29 @@ class RegistrationHandler():
                 routeasgbus = RouteAssignedToBus.objects.filter(bus=bus).exists()
                 if routeasgbus:
                     routeasgbus = RouteAssignedToBus.objects.get(bus=bus)
-                    if routeasgbus.route.id == route.id:
+                    if routeasgbus.route and routeasgbus.route.id == route.id:
                         messages.warning(request, 'Bus Already Assigned to Route!')
                     else:
                         routeasgbus.bus = None
                         routeasgbus.save()
-                        routeasgbus = RouteAssignedToBus.objects.get(route=route)
-                        routeasgbus.bus = bus
-                        routeasgbus.save()
+                        routeasgbus = RouteAssignedToBus.objects.filter(route=route).exists()
+                        if routeasgbus:
+                            routeasgbus = RouteAssignedToBus.objects.get(route=route)
+                            routeasgbus.bus = bus
+                            routeasgbus.save()
+                        else:
+                            routeasgbus = RouteAssignedToBus(route=route, bus = bus)
+                            routeasgbus.save()
                         messages.success(request, 'Route Assigned Successfully!')
                 else:
-                    routeasgbus = RouteAssignedToBus.objects.get(route=route)
-                    routeasgbus.bus = bus
-                    routeasgbus.save()
+                    routeasgbus = RouteAssignedToBus.objects.filter(route=route).exists()
+                    if routeasgbus:
+                        routeasgbus = RouteAssignedToBus.objects.get(route = route)
+                        routeasgbus.bus = bus
+                        routeasgbus.save()
+                    else:
+                        routeasgbus = RouteAssignedToBus(route=route, bus = bus)
+                        routeasgbus.save()
                     messages.success(request, 'Route Assigned Successfully!')
             except Exception as e:
                 messages.warning(request, e)
@@ -217,7 +227,7 @@ class RegistrationHandler():
         return {'request': request, 'buses': buses, 'drivers': drivers, 'bustodriver': bustodriver}
 
     @staticmethod
-    def fares(request):
+    def fares(request, fare_id):
         fares = None
         routetobus = None
         midpoints = None
@@ -267,6 +277,13 @@ class RegistrationHandler():
                         fare.fare = data['inputFare']
                         fare.save()
                         messages.success(request, 'Fare updated successfully!')
+            except Exception as e:
+                messages.warning(request, e)
+        if fare_id:
+            try:
+                fare = Fares.objects.get(id=int(fare_id))
+                fare.delete()
+                messages.success(request, 'Fare Deleted Successfully!')
             except Exception as e:
                 messages.warning(request, e)
         try:

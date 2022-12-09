@@ -4,6 +4,7 @@
 {% block username %}{{ request.user.username }}{% endblock username %}
 {% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
 {%block body%}
+{% load static %}
 <div class="container">
     <h1>FARES</h1>
     <hr>
@@ -74,6 +75,7 @@
           <th>SOURCE</th>
           <th>DESTINATION</th>
           <th>FARE</th>
+          <th>Delete</th>
         </tr>
         {% for fare in fares %}
         <tr class="tr">
@@ -81,6 +83,7 @@
           <td>{{fare.source}}</td>
           <td>{{fare.destination}}</td>
           <td>{{fare.fare}}</td>
+          <td><a href="{% url 'fares' fare_id=fare.id %}"><img src="{% static 'images/remove.png' %}"></a></td>
         </tr>
         {% endfor %}
     </table>

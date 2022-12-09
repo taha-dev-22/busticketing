@@ -107,6 +107,35 @@
             </tbody>
         </table>
     </div>
+    
+    <div class="coupon hidden-element" id="coupon">
+        <div class="text-center">
+            <h1 style="text-align:center;">MBM</h1>
+            <h1 style="text-align:center;">Boarding Coupon</h1>
+        </div>
+        <table style="width:100%; margin-top:5px;">
+            <tr style="margin-top:10px;">
+                <th style="border:1px solid #000;text-align:center;width:50%;">Ticket Id</th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="bill-voucher"></th>
+            </tr>
+            <tr style="margin-top:10px;">
+                <th style="border:1px solid #000;text-align:center;width:50%;">Route</th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" class="bill-route"></th>
+            </tr>
+            <tr style="margin-top:10px;">
+                <th style="border:1px solid #000;text-align:center;width:50%;">Seats</th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="seatnumber"></th>
+            </tr>
+            <tr style="margin-top:10px;">
+                <th style="border:1px solid #000;text-align:center;width:50%;">Name</th>
+                <th id="bill-pname" style="border:1px solid #000;text-align:center;width:50%;"></th>
+            </tr>
+            <tr style="margin-top:10px;">
+                <th style="border:1px solid #000;text-align:center;width:50%;">Fare</th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="totalprice"></th>
+            </tr>
+        </table>
+    </div>
     <form method="post" name="passengerid" class="mx-auto" id="passenger-id-form" action="">
         {% csrf_token %}
         <input type="number" class="hidden-element" name="inputUid" value="{{ uid }}" readonly>

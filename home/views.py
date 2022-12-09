@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher, Route, Closedby, Midpoint, TicketsAudit, Bus
+from home.models import Driver, Fares, Passenger, RouteAssignedToBus, Schedule, Tickets, UserofTerminal, Voucher, Route, Closedby, Midpoint, TicketsAudit, Bus, Terminal
 from home.auditHandler import AuditHandler
 from django.contrib.auth.models import User
 from home.bookingHandler import BookingHandler
@@ -110,8 +110,12 @@ def addtimetosc(request, schedule_id):
         schedule = Schedule.objects.get(id=schedule_id)
         route = schedule.route_assg_bus.route
         midpoints = Midpoint.objects.filter(route=route)
+        if not schedule.route_assg_bus.bus:
+            messages.warning(request, 'Bus not assigned to this route!')
+            return midtimes(request)
     except Exception as e:
         messages.warning(request, e)
+        return midtimes(request)
     if request.method == "POST":
         try:
             midtimes = {}
@@ -283,10 +287,10 @@ def vouchers(request):
     vouchers = Voucher.objects.filter(terminal=uterminal.terminal)
     return render(request, 'voucher.html', {'vouchers': vouchers})
 
-def fares(request):
+def fares(request, fare_id = None):
     if request.user.is_anonymous:
         return redirect('/login')
-    result = RegistrationHandler.fares(request)
+    result = RegistrationHandler.fares(request, fare_id)
     return render(result['request'], 'fares.html', {'fares': result['fares'], 'routetobus': result['routetobus'], 'midpoints': result['midpoints']})
 
 def close(request, schedule_id):
@@ -440,3 +444,68 @@ def viewdrivers(request, driver_id=None):
         except Exception as e:
             messages.warning(request, e)
     return render(request, 'drivers.html', {'Drivers': Drivers})
+
+def viewroutes(request, route_id=None):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    routes = None
+    try:
+        routes = Route.objects.all()
+    except Exception as e:
+        messages.warning(request, e)
+    if route_id is not None:
+        route = None
+        try:
+            route = Route.objects.get(id=route_id)
+            route.delete()
+            messages.success(request, 'Route deleted successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'routes.html', {'routes': routes})
+
+def modifyroute(request, route_id):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    route = None
+    terminals = None
+    try:
+        route = Route.objects.get(id=route_id)
+        terminals = Terminal.objects.all()
+    except Exception as e:
+        messages.warning(request, e)
+    if request.method == "POST":
+        try:
+            data = request.POST
+            if data['inputSource'] != data['inputDestination']:
+                source = Terminal.objects.get(id=int(data['inputSource']))
+                destination = Terminal.objects.get(id=int(data['inputDestination']))
+                route.source = source
+                route.via = data['inputVia']
+                route.destination = destination
+                route.save()
+                route = Route.objects.get(id=route_id)
+                messages.success(request, 'Route updated successfully!')
+            else:
+                messages.warning(request, 'Source and Destination cannot be same!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'modifyroute.html', {'route': route, 'terminals': terminals})
+
+def viewmidpoints(request, mp_id=None):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    midpoints = None
+    try:
+        midpoints = Midpoint.objects.all()
+    except Exception as e:
+        messages.warning(request, e)
+    if mp_id is not None:
+        midpoints = None
+        try:
+            midpoints = Midpoint.objects.get(id=mp_id)
+            midpoints.delete()
+            messages.success(request, 'Midpoint deleted successfully!')
+            midpoints = Midpoint.objects.all()
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'midpoints.html', {'midpoints': midpoints})

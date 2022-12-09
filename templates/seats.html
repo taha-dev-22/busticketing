@@ -157,7 +157,10 @@ function selectSeat(id)
 
         document.getElementById('inputSeats').value = Object.keys(seats).toString();
         if(mode)
+        {
         document.getElementById('seatnumber').innerHTML = Object.keys(seats).toString();
+        document.getElementById('seatnumber-coupon').innerHTML = Object.keys(seats).toString();
+        }
 
         document.getElementById('inputGenders').value = Object.values(seats).toString();
         if(mode)
@@ -188,7 +191,10 @@ function selectSeat(id)
 
         document.getElementById('inputSeats').value = Object.keys(seats).toString();
         if(mode)
+        {
         document.getElementById('seatnumber').innerHTML = Object.keys(seats).toString();
+        document.getElementById('seatnumber-coupon').innerHTML = Object.keys(seats).toString();
+        }
 
         document.getElementById('inputGenders').value = Object.values(seats).toString();
         if(mode)
@@ -213,6 +219,7 @@ function validateForm(id)
 function printBill()
 {
     document.getElementById('bill-pname').innerHTML = document.getElementById('inputPasName').value;
+    document.getElementById('bill-pname-coupon').innerHTML = document.getElementById('inputPasName').value;
     var discount = parseInt(document.getElementById('inputDiscount').value);
     document.getElementById('bill-disc').innerHTML = discount;
     var totalFare = parseInt(fare) * Object.keys(seats).length;
@@ -222,17 +229,21 @@ function printBill()
     if(discountTotal < totalFare)
     totalPayable = totalFare - discountTotal;
     document.getElementById('bill-TotalPayable').innerHTML = totalPayable;
+    document.getElementById('totalprice-coupon').innerHTML = totalPayable;
     var scid = document.getElementById('scid').innerHTML;
     var voucher = scid + '-' + Date.now();
     document.getElementById('bill-voucher').innerHTML = voucher;
+    document.getElementById('bill-voucher-coupon').innerHTML = voucher;
     var sid = document.getElementById('inputRoute').options.selectedIndex;
     document.getElementById('bill-route').innerHTML = document.getElementById('inputRoute').options[sid].innerHTML;
+    document.getElementById('bill-route-coupon').innerHTML = document.getElementById('inputRoute').options[sid].innerHTML;
     document.getElementById('inputVoucher').value = voucher;
     var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
     var prtContent = document.getElementById("ticket");
+    var prtCoupon = document.getElementById("coupon");
     WinPrint.document.close();
     WinPrint.document.write(prtContent.innerHTML);
-    WinPrint.document.write(prtContent.innerHTML);
+    WinPrint.document.write(prtCoupon.innerHTML);
     WinPrint.print();
     WinPrint.focus();
     WinPrint.close();
