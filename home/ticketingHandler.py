@@ -30,27 +30,11 @@ class TicketingHandler():
                 messages.success(request, 'Tickets has been purchased successfully!')
             except Exception as e:
                 messages.warning(request, e)
-        # tickets = Tickets.objects.filter(schedule=schedule_id)
-        # uterminal = UserofTerminal.objects.get(user=request.user)
-        # fares = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus, source=uterminal.terminal)
-        # seating = {}
-        # for i in tickets.values():
-        #     fare = Fares.objects.get(id=i['fare_id'])
-        #     if fare.destination.id == uterminal.terminal.id:
-        #         continue
-        #     bookedincity = fare.source.city
-        #     destcity = fare.destination.city
-        #     gender = i['gender']
-        #     status = i['status']
-        #     seating[i['seat_no']] =  {'gender':gender, 'status':status, 'bookedincity':bookedincity, 'destcity': destcity}
-        # result = {'schedule': schedule, 'seating': seating, 'range': range(schedule.route_assg_bus.bus.seating_capacity), 'fares': fares}
-        # dt = {'request': request, 'result': result}
-        # return dt
         dt = None
         try:
             tickets = Tickets.objects.filter(schedule=schedule_id)
             uterminal = UserofTerminal.objects.get(user=request.user)
-            fares = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus, source=uterminal.terminal)
+            fares = Fares.objects.filter(route=schedule.route_assg_bus.route, service_type= schedule.route_assg_bus.bus.service_type, source=uterminal.terminal)
             seating = {}
             for i in tickets.values():
                 fare = Fares.objects.get(id=i['fare_id'])

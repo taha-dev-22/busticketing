@@ -61,10 +61,11 @@
       <th>Close</th>
     </tr>
     {% for sc in schedule %}
+    {% if sc.route_assg_bus.bus %}
     <tr class="tr">
       <td>{{sc.route_assg_bus.route}}</td>
-      <td>{{sc.departure}}</td>
-      <td>{{sc.arrival}}</td>
+      <td>{{sc.departure.date}}<br>{{sc.departure.time}}</td>
+      <td>{{sc.arrival.date}}<br>{{sc.arrival.time}}</td>
       <td>{{sc.route_assg_bus.bus.service_type}}</td>
       <td>{{sc.route_assg_bus.bus}}</td>
       <td>{{sc.route_assg_bus.bus.seating_capacity}}</td>
@@ -73,6 +74,7 @@
       <td><a href="{% url 'addtime' schedule_id=sc.id %}" tooltip="Add Time"><img src="{% static 'images/time.png' %}"></a></td>
       <td><a href="{% url 'close' schedule_id=sc.id %}"><img src="{% static 'images/lock.png' %}"></a></td>
     </tr>
+    {% endif %}
     {% endfor %}
   </table>
 </div>

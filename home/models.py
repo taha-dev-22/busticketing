@@ -33,6 +33,7 @@ class Bus(models.Model):
         return self.bus_model + ' - ' + self.bus_number
 
 class Terminal(models.Model):
+    tcode = models.CharField(max_length=3, unique=True)
     name = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     address = models.CharField(max_length=150)
@@ -85,10 +86,11 @@ class Passenger(models.Model):
         return self.name + ' - ' + self.phone
 
 class Fares(models.Model):
-    route_asg_to_bus = models.ForeignKey("RouteAssignedToBus", on_delete=models.CASCADE)
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
     source = models.ForeignKey(Terminal, related_name='fare_source_terminal', on_delete=models.CASCADE)
     destination = models.ForeignKey(Terminal, related_name='fare_destination_terminal', on_delete=models.CASCADE)
     fare = models.IntegerField()
+    service_type = models.CharField(max_length=100, default='economy')
     created = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
     last_modified = models.DateTimeField(auto_now_add=True, editable=False, null=False, blank=False)
 
@@ -96,7 +98,7 @@ class Fares(models.Model):
         verbose_name_plural = 'Fares'
     
     def __str__(self):
-        return str(self.source) + ' - ' + str(self.destination) + ' - ' + str(self.route_asg_to_bus.bus.service_type)
+        return str(self.source) + ' - ' + str(self.destination) + ' - ' + str(self.route)
 
 class Tickets(models.Model):
     voucher = models.CharField(max_length=100, default= None, null= True)
@@ -211,7 +213,7 @@ class Schedule(models.Model):
         verbose_name_plural = 'Schedule'
 
     def __str__(self):
-        return str(self.route_assg_bus.route) + ' - ' + str(self.route_assg_bus.bus.service_type) +': ' + str(self.departure) + ' - ' + str(self.arrival)
+        return str(self.route_assg_bus.route) + ' - '+': ' + str(self.departure) + ' - ' + str(self.arrival)
 
 class Closedby(models.Model):
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)

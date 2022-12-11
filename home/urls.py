@@ -46,5 +46,8 @@ urlpatterns = [
     path('viewroutes/<int:route_id>', views.viewroutes, name='viewroutes'),
     path('modifyroute/<int:route_id>', views.modifyroute, name='modifyroute'),
     path('viewmidpoints', views.viewmidpoints, name='viewmidpoints'),
-    path('viewmidpoints/<int:mp_id>', views.viewmidpoints, name='viewmidpoints')
+    path('viewmidpoints/<int:mp_id>', views.viewmidpoints, name='viewmidpoints'),
+    path('viewterminals', views.viewterminals, name='viewterminals'),
+    path('viewterminals/<int:t_id>', views.viewterminals, name='viewterminals'),
+    path('modifyterminal/<int:t_id>', views.modifyterminal, name='modifyterminal')
 ]

@@ -31,6 +31,7 @@
         <th>Timing</th>
       </tr>
       {% for sc in schedule %}
+      {% if sc.route_assg_bus.bus %}
       <tr class="tr">
         <td>{{sc.route_assg_bus.route}}</td>
         <td>{{sc.departure}}</td>
@@ -40,6 +41,7 @@
         <td>{{sc.route_assg_bus.bus.seating_capacity}}</td>
         <td><a href="{% url 'addtimetosc' schedule_id=sc.id %}" tooltip="Set Time"><img src="{% static 'images/time.png' %}"></a></td>
       </tr>
+      {% endif %}
       {% endfor %}
     </table>
   </div>

@@ -5,7 +5,7 @@
 {% block terminal %}{{ request.session.uterminal }}{% endblock terminal %}
 {%block body%}
 <div class="container">
-    <h1>REGISTER TERMINAL</h1>
+    <h1>MODIFY TERMINAL</h1>
     <hr>
 </div>
 <div class="container my-3">
@@ -22,25 +22,25 @@
         <div class="mb-3 row">
           <label for="inputTCode" class="col-sm-2 col-form-label">Terminal</label>
           <div class="col-sm-4">
-            <input type="number" class="form-control" id="inputTCode" name="inputTCode" placeholder="Terminal Code" minlength="3" maxlength="50" required>
+            <input type="number" class="form-control" id="inputTCode" name="inputTCode" placeholder="Terminal Code" minlength="3" maxlength="50" value="{{terminal.tcode}}" readonly required>
           </div>
         </div>
         <div class="mb-3 row">
             <label for="inputName" class="col-sm-2 col-form-label">Name</label>
             <div class="col-sm-4">
-              <input type="text" class="form-control" id="inputName" name="inputName" placeholder="Terminal Name" minlength="3" maxlength="50" required>
+              <input type="text" class="form-control" id="inputName" name="inputName" placeholder="Terminal Name" minlength="3" maxlength="50" value="{{terminal.name}}" required>
             </div>
           </div>
           <div class="mb-3 row">
             <label for="inputCity" class="col-sm-2 col-form-label">City</label>
             <div class="col-sm-4">
-              <input type="text" class="form-control" id="inputCity" placeholder="City Name" name="inputCity" minlength="3" maxlength="50" required>
+              <input type="text" class="form-control" id="inputCity" placeholder="City Name" name="inputCity" minlength="3" maxlength="50" value="{{terminal.city}}" required>
             </div>
           </div>
           <div class="mb-3 row">
             <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
             <div class="col-sm-4">
-              <input type="text" class="form-control" id="inputAddress" name="inputAddress" placeholder="Terminal Address" min="10" max="100" required>
+              <input type="text" class="form-control" id="inputAddress" name="inputAddress" placeholder="Terminal Address" min="10" max="100" value="{{terminal.address}}" required>
             </div>
           </div>
           <button type="submit" class="btn btn-dark btn-md">Register</button>

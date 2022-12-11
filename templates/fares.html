@@ -24,9 +24,9 @@
             <label for="inputRoute" class="col-sm-2 col-form-label">Route</label>
             <div class="col-sm-4">
               <select name="inputRoute" class="form-control" id="inputRoute" required>
-                {% if routetobus %}
-                   {% for rb in routetobus %}
-                     <option value="{{rb.id}}">{{rb.route}} - {{rb.bus.service_type}}</option>
+                {% if route %}
+                   {% for rt in route %}
+                     <option value="{{rt.id}}">{{rt}}</option>
                    {% endfor %}
                 {% endif %}
               </select>
@@ -64,6 +64,18 @@
                 <input type="number" class="form-control" id="inputFare" name="inputFare" min="100" required>
             </div>
           </div>
+          <div class="mb-3 row">
+            <label for="inputService" class="col-sm-2 col-form-label">Service Type</label>
+            <div class="col-sm-4">
+              <select name="inputService" class="form-control" id="inputService">
+                {% if service_type %}
+                   {% for st in service_type %}
+                     <option value="{{st.service_type}}">{{st.service_type}}</option>
+                   {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
           <button type="submit" class="btn btn-dark btn-md">Assign</button>
     </form>
 </div>
@@ -75,14 +87,16 @@
           <th>SOURCE</th>
           <th>DESTINATION</th>
           <th>FARE</th>
+          <th>SERVICE</th>
           <th>Delete</th>
         </tr>
         {% for fare in fares %}
         <tr class="tr">
-          <td>{{fare.route_asg_to_bus.route}} - {{fare.route_asg_to_bus.bus.service_type}}</td>
+          <td>{{fare.route}}</td>
           <td>{{fare.source}}</td>
           <td>{{fare.destination}}</td>
           <td>{{fare.fare}}</td>
+          <td>{{fare.service_type}}</td>
           <td><a href="{% url 'fares' fare_id=fare.id %}"><img src="{% static 'images/remove.png' %}"></a></td>
         </tr>
         {% endfor %}

@@ -34,7 +34,7 @@ class BookingHandler():
         try:
             tickets = Tickets.objects.filter(schedule=schedule_id)
             uterminal = UserofTerminal.objects.get(user=request.user)
-            fares = Fares.objects.filter(route_asg_to_bus=schedule.route_assg_bus, source=uterminal.terminal)
+            fares = Fares.objects.filter(route=schedule.route_assg_bus.route, service_type=schedule.route_assg_bus.bus.service_type, source=uterminal.terminal)
             seating = {}
             for i in tickets.values():
                 fare = Fares.objects.get(id=i['fare_id'])
@@ -125,12 +125,14 @@ class BookingHandler():
         vouchers = None
         tickets = None
         uid = None
+        uterminal = None
         if request.method == "POST":
             if 'find-cnic' in request.POST:
                 try:
+                    uterminal = UserofTerminal.objects.get(user=request.user)
                     passenger = Passenger.objects.get(cnic=request.POST['inputPasId'])
                     uid = passenger.id
-                    vouchers = Tickets.objects.filter(bookedby = passenger, status= 1).distinct()
+                    vouchers = Tickets.objects.filter(bookedby = passenger, status= 1, source=uterminal.terminal).distinct()
                     if not vouchers:
                         messages.warning(request, 'No Tickets found against this cnic!')
                         vouchers = None
@@ -149,6 +151,17 @@ class BookingHandler():
                         seat_gender[i.seat_no] = 'M' if i.gender else 'F'
                         billData['voucher'] = i.voucher
                         billData['issuedby'] = i.issuedby
+                        billData['discount'] = i.discount
+                        billData['passenger'] = i.bookedby.name
+                        billData['route_asg_bus'] = i.schedule.route_assg_bus
+                        if i.schedule.route_assg_bus.route.source == uterminal:
+                            billData['departure'] = i.schedule.departure
+                        elif i.schedule.mid_dept:
+                            mid_dept = json.loads(i.schedule.mid_dept)
+                            billData['departure'] = i.schedule.departure.date() + ', ' + mid_dept[uterminal.id]
+                        else:
+                            billData['departure'] = i.schedule.departure
+                        schedule = i.schedule
                     for i in sorted(seat_gender.keys()):
                         seats.append(i)
                         genders.append(seat_gender[i])
@@ -159,6 +172,8 @@ class BookingHandler():
                     billData['qty'] = qty
                     billData['fare'] = fare
                     billData['total'] = fare * qty
+                    billData['totaldisc'] = billData['discount'] * qty
+                    billData['totalpayable'] = billData['total'] - billData['discount'] * qty
                 except Exception as e:
                     messages.warning(request, e)
             elif 'Purchase-seats' in request.POST:
@@ -173,4 +188,4 @@ class BookingHandler():
                     messages.success(request, 'Seats Purchased Successfully!')
                 except Exception as e:
                     messages.warning(request, e)
-        return {'request': request, 'uid': uid, 'schedules': schedules, 'tickets': tickets, 'vouchers': vouchers, 'billdata': billData}
+        return {'request': request, 'uid': uid, 'schedules': schedules, 'schedule': schedule, 'tickets': tickets, 'vouchers': vouchers, 'billdata': billData}

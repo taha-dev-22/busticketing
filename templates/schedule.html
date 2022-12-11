@@ -45,7 +45,9 @@
               <select name="inputRouteBus" class="form-control" id="inputRouteBus" required>
                 {% if routeasgbus %}
                    {% for rb in routeasgbus %}
-                   <option value="{{rb.id}}">{{rb}}</option>
+                   {% if rb.bus %}
+                   <option value="{{rb.id}}">{{rb.route.source.city}} - {{rb.route.destination.city}}, {{rb.bus}}</option>
+                   {% endif %}
                    {% endfor %}
                 {% endif %}
               </select>
@@ -64,7 +66,7 @@
         </tr>
         {% for rb in routeasgbus %}
         <tr class="tr">
-          <td>{{rb.route}}</td>
+          <td>{{rb.route.source.city}} - {{rb.route.destination.city}}</td>
           {% if rb.bus %}
           <td>{{rb.bus}}</td>
           {% else %}

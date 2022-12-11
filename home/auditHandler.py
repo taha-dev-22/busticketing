@@ -101,7 +101,7 @@ class AuditHandler():
             #Header
             writer.writerow(['Terminal', 'Destination', 'Voucher#', 'Refreshment', 'Washing', 'Parking', 'Toll', 'IssuedBy'])
             for voucher in query_set:
-                output.append([ voucher.terminal, voucher.schedule.route_assg_bus.route.destination, voucher.refreshment, voucher.washing, voucher.parking, voucher.toll, voucher.issuedby.get_full_name()])
+                output.append([ voucher.terminal, voucher.schedule.route_assg_bus.route.destination, voucher.voucher, voucher.refreshment, voucher.washing, voucher.parking, voucher.toll, voucher.issuedby.get_full_name()])
                 #CSV Data
             writer.writerows(output)
         except Exception as e:

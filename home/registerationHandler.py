@@ -85,11 +85,11 @@ class RegistrationHandler():
     @staticmethod
     def terminalRegisteration(request):
         if request.method == "POST":
-            terminal = Terminal.objects.filter(name=request.POST['inputName'], city=request.POST['inputCity']).exists()
+            terminal = Terminal.objects.filter(tcode = request.POST['inputTCode']).exists()
             if not terminal:
                 data = request.POST
                 try:
-                    terminal = Terminal(name=data['inputName'], city = data['inputCity'], address = data['inputAddress'])
+                    terminal = Terminal(tcode = request.POST['inputTCode'], name=data['inputName'], city = data['inputCity'], address = data['inputAddress'])
                     terminal.save()
                     messages.success(request, 'Terminal Registered Successfully!')
                 except Exception as e:
@@ -171,14 +171,8 @@ class RegistrationHandler():
                             routeasgbus.save()
                         messages.success(request, 'Route Assigned Successfully!')
                 else:
-                    routeasgbus = RouteAssignedToBus.objects.filter(route=route).exists()
-                    if routeasgbus:
-                        routeasgbus = RouteAssignedToBus.objects.get(route = route)
-                        routeasgbus.bus = bus
-                        routeasgbus.save()
-                    else:
-                        routeasgbus = RouteAssignedToBus(route=route, bus = bus)
-                        routeasgbus.save()
+                    routeasgbus = RouteAssignedToBus(route=route, bus = bus)
+                    routeasgbus.save()
                     messages.success(request, 'Route Assigned Successfully!')
             except Exception as e:
                 messages.warning(request, e)
@@ -229,51 +223,52 @@ class RegistrationHandler():
     @staticmethod
     def fares(request, fare_id):
         fares = None
-        routetobus = None
+        route = None
         midpoints = None
+        service_type = None
         if request.method == "POST":
             try:
                 data = request.POST
                 src = data['inputSrc']
                 dst = data['inputDest']
+                service_type = data['inputService']
                 mp1 = True
                 mp2 = True
                 if src and dst and src == dst:
                     messages.warning(request, 'Source and Destination cannot be same!')
                 else:
-                    routetobus = RouteAssignedToBus.objects.get(id=data['inputRoute'])
+                    route = Route.objects.get(id=data['inputRoute'])
                     if src and dst:
                         src = Terminal.objects.get(id=int(src))
                         dst = Terminal.objects.get(id=int(dst))
-                        mp1 = Midpoint.objects.filter(route=routetobus.route, terminal=src).exists()
-                        mp2 = Midpoint.objects.filter(route=routetobus.route, terminal=dst).exists()
+                        mp1 = Midpoint.objects.filter(route=route, terminal=src).exists()
+                        mp2 = Midpoint.objects.filter(route=route, terminal=dst).exists()
                         if not mp1:
                             messages.warning(request, 'Source does not belong to route!')
                         if not mp2:
                             messages.warning(request, 'Destination does not belong to route!')
                     elif src:
                         src = Terminal.objects.get(id=int(src))
-                        dst = routetobus.route.destination
-                        mp1 = Midpoint.objects.filter(route=routetobus.route, terminal=src).exists()
+                        dst = route.destination
+                        mp1 = Midpoint.objects.filter(route=route, terminal=src).exists()
                         if not mp1:
                             messages.warning(request, 'Terminal does not belong to route!')
                     elif dst:
-                        src = routetobus.route.source
+                        src = route.source
                         dst = Terminal.objects.get(id=int(dst))
-                        mp2 = Midpoint.objects.filter(route=routetobus.route, terminal=dst).exists()
+                        mp2 = Midpoint.objects.filter(route=route, terminal=dst).exists()
                         if not mp2:
                             messages.warning(request, 'Terminal does not belong to route!')
                     else:
-                        src = routetobus.route.source
-                        dst = routetobus.route.destination
-                    fare = Fares.objects.filter(route_asg_to_bus=routetobus, source=src, destination=dst).exists()
-                    print(mp1, mp2)
+                        src = route.source
+                        dst = route.destination
+                    fare = Fares.objects.filter(route=route, source=src, destination=dst, service_type=service_type).exists()
                     if not fare and mp1 and mp2:
-                        fare = Fares(route_asg_to_bus=routetobus, source=src, destination=dst, fare=data['inputFare'])
+                        fare = Fares(route=route, source=src, destination=dst, service_type=service_type, fare=data['inputFare'])
                         fare.save()
                         messages.success(request, 'Fare assigned successfully!')
                     elif mp1 and mp2:
-                        fare = Fares.objects.get(route_asg_to_bus=routetobus, source=src, destination=dst)
+                        fare = Fares.objects.get(route=route, source=src, destination=dst, service_type=service_type)
                         fare.fare = data['inputFare']
                         fare.save()
                         messages.success(request, 'Fare updated successfully!')
@@ -288,9 +283,10 @@ class RegistrationHandler():
                 messages.warning(request, e)
         try:
             fares = Fares.objects.all()
-            routetobus = RouteAssignedToBus.objects.all()
+            route = Route.objects.all()
             midpoints = Midpoint.objects.all()
+            service_type = Bus.objects.all().distinct().values('service_type')
         except Exception as e:
             messages.warning(request, e)
-        return {'request': request, 'fares': fares, 'routetobus': routetobus, 'midpoints': midpoints}
+        return {'request': request, 'fares': fares, 'route': route, 'service_type': service_type,  'midpoints': midpoints}
                 

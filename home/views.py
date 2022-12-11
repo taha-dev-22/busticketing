@@ -158,7 +158,7 @@ def bookingdetail(request):
         return redirect('/login')
     result = BookingHandler.bookingdetail(request)
     return render(result['request'], 'bookingdetail.html', {'uid': result['uid'], 'schedules': result['schedules'], 
-                'tickets': result['tickets'], 'vouchers': result['vouchers'], 'billdata': result['billdata']})
+                'tickets': result['tickets'], 'vouchers': result['vouchers'], 'schedule': result['schedule'], 'billdata': result['billdata']})
 
 def schedule(request):
     if request.user.is_anonymous:
@@ -171,9 +171,10 @@ def schedule(request):
     except Exception as e:
         messages.warning(request, e)
     try:
-        inner_qs = Closedby.objects.filter(terminal=userterminal.terminal)
+        inner_qs = Closedby.objects.filter(terminal=userterminal.terminal).values('schedule')
         route = Route.objects.filter(source=userterminal.terminal)
         schedule = Schedule.objects.filter(status=True).exclude(id__in=inner_qs).order_by('departure')
+        #schedule = Schedule.objects.filter(status=True).exclude(closedby__schedule=).order_by('departure')
         routes = Route.objects.all()
     except Exception as e:
         messages.warning(request, e)
@@ -189,8 +190,8 @@ def schedule(request):
                     dt = datetime.strptime(date, r'%Y-%m-%d')
                 if request.POST['inputRoute']:
                     route = Route.objects.get(id=request.POST['inputRoute'])
-                    rtb = RouteAssignedToBus.objects.get(route=route)
-                    schedule = Schedule.objects.filter(route_assg_bus = rtb, departure__gte = dt, status=True).exclude(id__in=inner_qs).order_by('departure')
+                    rtb = RouteAssignedToBus.objects.filter(route=route)
+                    schedule = Schedule.objects.filter(route_assg_bus__in = rtb, departure__gte = dt, status=True).exclude(id__in=inner_qs).order_by('departure')
                 else:
                     schedule = Schedule.objects.filter(departure__gte = dt, status=True).exclude(id__in=inner_qs).order_by('departure')
             else:
@@ -291,7 +292,7 @@ def fares(request, fare_id = None):
     if request.user.is_anonymous:
         return redirect('/login')
     result = RegistrationHandler.fares(request, fare_id)
-    return render(result['request'], 'fares.html', {'fares': result['fares'], 'routetobus': result['routetobus'], 'midpoints': result['midpoints']})
+    return render(result['request'], 'fares.html', {'fares': result['fares'], 'service_type': result['service_type'], 'route': result['route'], 'midpoints': result['midpoints']})
 
 def close(request, schedule_id):
     if request.user.is_anonymous:
@@ -307,11 +308,12 @@ def close(request, schedule_id):
     validuser = False
     if route.source.id == uterminal.terminal.id:
         validuser = True
-    else:
-        deptime = str(datetime.now().date()) + ' , ' + str(datetime.now().time().strftime('%I:%M:%S %p'))
     for i in mdpts:
-        if uterminal.terminal.id == i.terminal:
+        if uterminal.terminal.id == i.terminal.id:
             validuser = True
+            dept = json.loads(sc.mid_dept)
+            deptime = str(sc.departure.date()) + ' , ' + dept[str(uterminal.terminal.id)]
+    print(uterminal.terminal.id)
     fare = 0
     if request.method == "POST" and validuser and 'close-sc' in request.POST:
         data = request.POST
@@ -509,3 +511,42 @@ def viewmidpoints(request, mp_id=None):
         except Exception as e:
             messages.warning(request, e)
     return render(request, 'midpoints.html', {'midpoints': midpoints})
+
+def modifyterminal(request, t_id):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    terminal = None
+    try:
+        terminal = Terminal.objects.get(id=t_id)
+    except Exception as e:
+        messages.warning(request, e)
+    if request.method == "POST":
+        try:
+            data = request.POST
+            terminal.name=data['inputName']
+            terminal.city=data['inputCity']
+            terminal.address=data['inputAddress']
+            terminal.save()
+            terminal = Terminal.objects.get(id=t_id)
+            messages.success(request, 'Terminal updated successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'modifyterminal.html', {'terminal': terminal})
+
+def viewterminals(request, t_id = None):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    terminals = None
+    try:
+        terminals = Terminal.objects.all().exclude(tcode='000')
+    except Exception as e:
+        messages.warning(request, e)
+    if t_id is not None:
+        terminal = None
+        try:
+            terminal = Terminal.objects.get(id=t_id)
+            terminal.delete()
+            messages.success(request, 'Terminal deleted successfully!')
+        except Exception as e:
+            messages.warning(request, e)
+    return render(request, 'terminals.html', {'terminals': terminals})

@@ -76,13 +76,42 @@
     <div class="ticket hidden-element" id="ticket">
         <div class="text-center">
         <h1 style="text-align:center;">MBM</h1>
-        <p style="text-align:center;"><strong>Voucher:</strong> <span id="bill-voucher">{{ billdata.voucher}}</span></p>
-        <p id="bill-route" style="text-align:center;"><strong>Route:</strong> {{schedule.route_assg_bus.route}}</p>
-        <p id="bill-departure" style="text-align:center;"><strong>Departure:</strong> {{schedule.departure.date}} - {{schedule.departure.time}}</p>
-        <p id="bill-bus" style="text-align:center;"><strong>Bus:</strong> {{schedule.route_assg_bus.bus}}</p>
-        <p style="text-align:center;"><strong>Issued By:</strong> {{ billdata.issuedby }}</p>
         </div>
-        <table style="width:100%;">
+        <table style="width:100%; margin-top:5px;">
+            <tr>
+                <th style="border:1px solid #000;text-align:center;width:50%;">Ticket Id</th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="bill-voucher">{{billdata.voucher}}</th>
+            </tr>
+            <tr>
+                <th style="border:1px solid #000;text-align:center;width:50%;">Issuedby</th>
+                <th style="border:1px solid #000;text-align:center;width:50%;">{{ request.user.get_full_name}}</th>
+            </tr>
+        </table>
+        <table style="width:100%; margin-top:5px;">
+            <tr>
+                <th style="text-align:left;" colspan="2">Passenger Info</th>
+            </tr>
+            <tr style="margin-top:10px;">
+                <td style="border:1px solid #000;text-align:center;">Name</td>
+                <td id="bill-pname" style="border:1px solid #000;text-align:center;">{{billdata.passenger}}</td>
+            </tr>
+        </table>
+        <table style="width:100%; margin-top:5px;">
+            <tr>
+                <th style="text-align:left;" colspan="2">Departure Info</th>
+            </tr>
+            <tr style="margin-top:10px;">
+                <th style="border:1px solid #000;text-align:center;">Route</th>
+                <th style="border:1px solid #000;text-align:center;">Departure</th>
+                <th style="border:1px solid #000;text-align:center;">Bus</th>
+            </tr>
+            <tr>
+                <td id="bill-route" style="border:1px solid #000;text-align:center;">{{billdata.route_asg_bus.route}}</td>
+                <td id="bill-departure" style="border:1px solid #000;text-align:center;">{{billdata.departure}}</td>
+                <td id="bill-bus" style="border:1px solid #000;text-align:center;">{{billdata.route_asg_bus.bus}}</td>
+            </tr>
+        </table>
+        <table style="width:100%; margin-top:10px;">
             <thead>
                 <tr>
                     <th style="border:1px solid #000;text-align:center;" class="seat">Seat</th>
@@ -93,46 +122,62 @@
             </thead>
             <tbody id="bill-body">
                 <tr>
-                    <td style="border:1px solid #000;text-align:center;" id="seatnumber">{{ billdata.seats }}</td>
-                    <td style="border:1px solid #000;text-align:center;" id="seatgender">{{ billdata.genders }}</td>
-                    <td style="border:1px solid #000;text-align:center;" id="seatqty">{{ billdata.qty }}</td>
-                    <td style="border:1px solid #000;text-align:center;" id="seatprice">{{ billdata.fare }}</td>
+                    <td style="border:1px solid #000;text-align:center;" id="seatnumber">{{billdata.seats}}</td>
+                    <td style="border:1px solid #000;text-align:center;" id="seatgender">{{billdata.genders}}</td>
+                    <td style="border:1px solid #000;text-align:center;" id="seatqty">{{billdata.qty}}</td>
+                    <td style="border:1px solid #000;text-align:center;" id="seatprice">{{billdata.fare}}</td>
                 </tr>
                 <tr>
                     <td></td>
                     <td></td>
                     <td><b>TOTAL</b></td>
-                    <td style="border:1px solid #000;text-align:center;" id="totalprice">{{ billdata.total }}</td>
+                    <td style="border:1px solid #000;text-align:center;" id="totalprice">{{billdata.total}}</td>
                 </tr>
             </tbody>
         </table>
+        <table style="width:100%; margin-top:5px;">
+            <tr>
+                <th style="text-align:left;" colspan="2">Discount Info</th>
+            </tr>
+            <tr style="margin-top:10px;">
+                <th style="border:1px solid #000;text-align:center;">Amount per seat</th>
+                <th style="border:1px solid #000;text-align:center;">Total Discount</th>
+            </tr>
+            <tr>
+                <td id="bill-disc" style="border:1px solid #000;text-align:center;">{{billdata.discount}}</td>
+                <td id="bill-discTotal" style="border:1px solid #000;text-align:center;">{{billdata.totaldisc}}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #000;text-align:center;">Total Payable Amount</td>
+                <td id="bill-TotalPayable" style="border:1px solid #000;text-align:center;">{{billdata.totalpayable}}</td>
+            </tr>
+        </table>
     </div>
-    
     <div class="coupon hidden-element" id="coupon">
         <div class="text-center">
             <h1 style="text-align:center;">MBM</h1>
-            <h1 style="text-align:center;">Boarding Coupon</h1>
+            <h2 style="text-align:center;">Boarding Coupon</h2>
         </div>
         <table style="width:100%; margin-top:5px;">
             <tr style="margin-top:10px;">
                 <th style="border:1px solid #000;text-align:center;width:50%;">Ticket Id</th>
-                <th style="border:1px solid #000;text-align:center;width:50%;" id="bill-voucher"></th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="bill-voucher-coupon">{{billdata.voucher}}</th>
             </tr>
             <tr style="margin-top:10px;">
                 <th style="border:1px solid #000;text-align:center;width:50%;">Route</th>
-                <th style="border:1px solid #000;text-align:center;width:50%;" class="bill-route"></th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="bill-route-coupon">{{billdata.route_asg_bus.route}}</th>
             </tr>
             <tr style="margin-top:10px;">
                 <th style="border:1px solid #000;text-align:center;width:50%;">Seats</th>
-                <th style="border:1px solid #000;text-align:center;width:50%;" id="seatnumber"></th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="seatnumber-coupon">{{billdata.seats}}</th>
             </tr>
             <tr style="margin-top:10px;">
                 <th style="border:1px solid #000;text-align:center;width:50%;">Name</th>
-                <th id="bill-pname" style="border:1px solid #000;text-align:center;width:50%;"></th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="bill-pname-coupon">{{billdata.passenger}}</th>
             </tr>
             <tr style="margin-top:10px;">
                 <th style="border:1px solid #000;text-align:center;width:50%;">Fare</th>
-                <th style="border:1px solid #000;text-align:center;width:50%;" id="totalprice"></th>
+                <th style="border:1px solid #000;text-align:center;width:50%;" id="totalprice-coupon">{{billdata.totalpayable}}</th>
             </tr>
         </table>
     </div>
@@ -153,8 +198,10 @@
         {
             var  WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
             var prtContent = document.getElementById("ticket");
+            var prtCoupon = document.getElementById("coupon");
             WinPrint.document.close();
             WinPrint.document.write(prtContent.innerHTML);
+            WinPrint.document.write(prtCoupon.innerHTML);
             WinPrint.print();
             WinPrint.focus();
             WinPrint.close();
